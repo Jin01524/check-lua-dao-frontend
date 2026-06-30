@@ -78,7 +78,7 @@ export default function HomePage() {
           <div className="form-section">
             <div className="form-section-label">
               <span className="step-number">2</span>
-              Chọn nơi bạn nhận tin nhắn
+              Bạn nhận tin nhắn này từ đâu?
             </div>
             <PlatformSelector value={platform} onChange={setPlatform} />
           </div>
