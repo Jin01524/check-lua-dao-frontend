@@ -262,7 +262,7 @@ function TemplatesTab() {
     }
   };
 
-  const isApproved = (t) => t.isApproved || t.status === 'approved';
+  const isApproved = (t) => t.is_approved || t.isApproved || t.status === 'approved';
 
   return (
     <div>

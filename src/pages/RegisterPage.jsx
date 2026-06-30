@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/api';
 
-export default function AdminLoginPage() {
+export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,21 +22,17 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      const res = await API.post('/api/auth/login', { username, password });
+      const res = await API.post('/api/auth/register', { username, password });
       const token = res.data?.token || res.data?.accessToken;
       const user = res.data?.user;
       
       if (!token) throw new Error('Không nhận được thông tin xác thực.');
       login(token, user);
       
-      if (user?.role === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        navigate('/', { replace: true });
-      }
+      navigate('/', { replace: true });
     } catch (err) {
       const msg = err.response?.data?.message || err.message;
-      setError(msg || 'Tên đăng nhập hoặc mật khẩu không đúng.');
+      setError(msg || 'Đã có lỗi xảy ra khi tạo tài khoản.');
     } finally {
       setLoading(false);
     }
@@ -46,7 +42,7 @@ export default function AdminLoginPage() {
     <div className="admin-login-page">
       <div className="login-card">
         <div className="login-logo">🛡️</div>
-        <h1 className="login-title">Đăng nhập</h1>
+        <h1 className="login-title">Tạo tài khoản</h1>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
@@ -76,7 +72,7 @@ export default function AdminLoginPage() {
               placeholder="Nhập mật khẩu..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
+              autoComplete="new-password"
               disabled={loading}
             />
           </div>
@@ -97,16 +93,16 @@ export default function AdminLoginPage() {
                   className="spinner spinner-sm"
                   style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
                 />
-                Đang đăng nhập...
+                Đang tạo tài khoản...
               </>
             ) : (
-              '🔑 Đăng nhập'
+              '📝 Tạo tài khoản'
             )}
           </button>
         </form>
         
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          Chưa có tài khoản? <Link to="/register" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Tạo tài khoản</Link>
+          Đã có tài khoản? <Link to="/admin/login" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Đăng nhập</Link>
         </div>
       </div>
     </div>
