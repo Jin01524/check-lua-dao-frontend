@@ -46,24 +46,56 @@ export default function PlatformSelector({ value, onChange }) {
   };
 
   const selectedId = getSelectedId();
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedPlatform = PLATFORMS.find(p => p.id === selectedId);
 
   return (
     <div>
-      {/* Select Box for Mobile */}
-      <div className="platform-mobile-select">
-        <select
-          value={selectedId || ''}
-          onChange={(e) => handleSelect(e.target.value)}
-          className="form-input"
-          style={{ cursor: 'pointer' }}
+      {/* Custom Select Box for Mobile */}
+      <div className="platform-mobile-select-custom">
+        <button
+          type="button"
+          className="custom-select-trigger"
+          onClick={() => setIsOpen(!isOpen)}
         >
-          <option value="" disabled>-- Chọn ứng dụng nhận tin nhắn --</option>
-          {PLATFORMS.map((platform) => (
-            <option key={platform.id} value={platform.id}>
-              {platform.emoji} {platform.label}
-            </option>
-          ))}
-        </select>
+          {selectedPlatform ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {selectedPlatform.icon ? (
+                <img src={selectedPlatform.icon} alt={selectedPlatform.label} className="platform-icon-sm" />
+              ) : (
+                <span className="platform-emoji-sm">{selectedPlatform.emoji}</span>
+              )}
+              <span>{selectedPlatform.label}</span>
+            </div>
+          ) : (
+            <span style={{ color: 'var(--text-muted)' }}>-- Chọn ứng dụng nhận tin nhắn --</span>
+          )}
+          <span className="arrow" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
+        </button>
+
+        {isOpen && (
+          <ul className="custom-select-options">
+            {PLATFORMS.map((platform) => (
+              <li key={platform.id}>
+                <button
+                  type="button"
+                  className={`custom-option-item ${selectedId === platform.id ? 'selected' : ''}`}
+                  onClick={() => {
+                    handleSelect(platform.id);
+                    setIsOpen(false);
+                  }}
+                >
+                  {platform.icon ? (
+                    <img src={platform.icon} alt={platform.label} className="platform-icon-sm" />
+                  ) : (
+                    <span className="platform-emoji-sm">{platform.emoji}</span>
+                  )}
+                  <span>{platform.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Grid for Desktop */}
