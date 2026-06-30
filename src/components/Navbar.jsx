@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { isAdmin } = useAuth();
+  const { isAdmin, logout } = useAuth();
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
@@ -49,14 +49,47 @@ export default function Navbar() {
               📋 Mẫu lừa đảo
             </Link>
           </li>
-          {isAdmin && (
+          {isAdmin ? (
+            <>
+              <li>
+                <Link
+                  to="/admin/dashboard"
+                  className={`navbar-link ${isActive('/admin/dashboard') ? 'active' : ''}`}
+                  onClick={close}
+                >
+                  ⚙️ Quản trị
+                </Link>
+              </li>
+              <li>
+                <button
+                  className="navbar-link nav-btn-logout"
+                  onClick={() => {
+                    logout();
+                    close();
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    font: 'inherit',
+                    cursor: 'pointer',
+                    color: '#FF4757',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.5rem 1rem'
+                  }}
+                >
+                  🚪 Đăng xuất
+                </button>
+              </li>
+            </>
+          ) : (
             <li>
               <Link
-                to="/admin/dashboard"
-                className={`navbar-link ${isActive('/admin/dashboard') ? 'active' : ''}`}
+                to="/admin/login"
+                className={`navbar-link ${isActive('/admin/login') ? 'active' : ''}`}
                 onClick={close}
               >
-                ⚙️ Quản trị
+                🔒 Đăng nhập Admin
               </Link>
             </li>
           )}
