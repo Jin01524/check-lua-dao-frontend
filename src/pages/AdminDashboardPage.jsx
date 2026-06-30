@@ -80,7 +80,7 @@ function ApiKeysTab() {
   const handleToggle = async (id, current) => {
     try {
       await API.patch(`/api/admin/api-keys/${id}`, { isActive: !current });
-      setKeys(keys.map(k => k.id === id || k._id === id ? { ...k, isActive: !current } : k));
+      setKeys(keys.map(k => (k.id === id || k._id === id) ? { ...k, is_active: !current } : k));
     } catch {
       alert('Không thể cập nhật trạng thái.');
     }
@@ -186,11 +186,11 @@ function ApiKeysTab() {
                       <span className="key-masked">{maskKey(k.key)}</span>
                     </td>
                     <td>
-                      <label className="toggle-switch" title={k.isActive ? 'Đang bật' : 'Đang tắt'}>
+                      <label className="toggle-switch" title={k.is_active ? 'Đang bật' : 'Đang tắt'}>
                         <input
                           type="checkbox"
-                          checked={!!k.isActive}
-                          onChange={() => handleToggle(id, k.isActive)}
+                          checked={!!k.is_active}
+                          onChange={() => handleToggle(id, k.is_active)}
                         />
                         <span className="toggle-slider" />
                       </label>
