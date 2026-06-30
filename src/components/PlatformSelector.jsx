@@ -2,11 +2,13 @@ import { useState } from 'react';
 import smsIcon from '../assets/sms.png';
 import zaloIcon from '../assets/Icon_of_Zalo.png';
 import fbIcon from '../assets/Facebook_f_logo_(2019).png';
+import telegramIcon from '../assets/Telegram_2019_Logo.png';
 
 const PLATFORMS = [
   { id: 'sms', icon: smsIcon, label: 'SMS' },
   { id: 'zalo', icon: zaloIcon, label: 'Zalo' },
   { id: 'facebook', icon: fbIcon, label: 'Facebook' },
+  { id: 'telegram', icon: telegramIcon, label: 'Telegram' },
   { id: 'other', emoji: '✏️', label: 'Khác' },
 ];
 
@@ -20,7 +22,7 @@ export default function PlatformSelector({ value, onChange }) {
   const [customName, setCustomName] = useState('');
 
   const isOtherSelected = value === 'other' || (
-    value && !PLATFORMS.slice(0, 3).find(p => p.id === value)
+    value && !PLATFORMS.slice(0, 4).find(p => p.id === value)
   );
 
   const handleSelect = (id) => {

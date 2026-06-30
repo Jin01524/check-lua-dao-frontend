@@ -517,8 +517,14 @@ input, textarea, select {
 /* ---------- Platform Selector ---------- */
 .platform-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .platform-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 .platform-card {
@@ -533,7 +539,7 @@ input, textarea, select {
   background: var(--white);
   cursor: pointer;
   transition: all 0.2s;
-  min-height: 90px;
+  aspect-ratio: 1 / 1;
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--secondary);
