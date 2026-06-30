@@ -15,7 +15,14 @@ import ChatBubble from './ChatBubble';
 export default function ResultCard({ result }) {
   if (!result) return null;
 
-  const { isScam, scamType, dangerLevel = 0, warningPoints = [], messages = [], summary } = result;
+  const {
+    isScam,
+    scamType,
+    confidenceScore: dangerLevel = 0,
+    warningPoints = [],
+    messages = [],
+    analysis: summary
+  } = result;
 
   const dangerClass =
     dangerLevel < 40 ? 'danger-low' :
