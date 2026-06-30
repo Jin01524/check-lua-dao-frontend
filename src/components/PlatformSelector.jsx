@@ -5,10 +5,10 @@ import fbIcon from '../assets/Facebook_f_logo_(2019).png';
 import telegramIcon from '../assets/Telegram_2019_Logo.png';
 
 const PLATFORMS = [
-  { id: 'sms', icon: smsIcon, label: 'SMS' },
-  { id: 'zalo', icon: zaloIcon, label: 'Zalo' },
-  { id: 'facebook', icon: fbIcon, label: 'Facebook' },
-  { id: 'telegram', icon: telegramIcon, label: 'Telegram' },
+  { id: 'sms', icon: smsIcon, emoji: '📱', label: 'SMS' },
+  { id: 'zalo', icon: zaloIcon, emoji: '💬', label: 'Zalo' },
+  { id: 'facebook', icon: fbIcon, emoji: '📘', label: 'Facebook' },
+  { id: 'telegram', icon: telegramIcon, emoji: '✈️', label: 'Telegram' },
   { id: 'other', emoji: '✏️', label: 'Khác' },
 ];
 
@@ -49,6 +49,24 @@ export default function PlatformSelector({ value, onChange }) {
 
   return (
     <div>
+      {/* Select Box for Mobile */}
+      <div className="platform-mobile-select">
+        <select
+          value={selectedId || ''}
+          onChange={(e) => handleSelect(e.target.value)}
+          className="form-input"
+          style={{ cursor: 'pointer' }}
+        >
+          <option value="" disabled>-- Chọn ứng dụng nhận tin nhắn --</option>
+          {PLATFORMS.map((platform) => (
+            <option key={platform.id} value={platform.id}>
+              {platform.emoji} {platform.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Grid for Desktop */}
       <div className="platform-grid">
         {PLATFORMS.map((platform) => (
           <button

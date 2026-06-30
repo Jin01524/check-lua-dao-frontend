@@ -515,15 +515,22 @@ input, textarea, select {
 }
 
 /* ---------- Platform Selector ---------- */
+.platform-mobile-select {
+  display: block;
+}
+
 .platform-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  display: none;
 }
 
 @media (min-width: 768px) {
+  .platform-mobile-select {
+    display: none;
+  }
   .platform-grid {
+    display: grid;
     grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
   }
 }
 
