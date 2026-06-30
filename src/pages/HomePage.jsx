@@ -38,6 +38,12 @@ export default function HomePage() {
       });
 
       setResult(response.data);
+      
+      // Thu hồi (revoke) các Object URL của ảnh cũ để tránh rò rỉ bộ nhớ
+      files.forEach((item) => {
+        if (item.preview) URL.revokeObjectURL(item.preview);
+      });
+      setFiles([]);
     } catch (err) {
       const msg = err.response?.data?.message || err.message;
       setError(`Có lỗi xảy ra khi phân tích: ${msg}`);
