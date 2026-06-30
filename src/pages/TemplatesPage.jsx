@@ -30,7 +30,7 @@ export default function TemplatesPage() {
     const fetchTemplates = async () => {
       try {
         const res = await API.get('/api/templates');
-        setTemplates(res.data || []);
+        setTemplates(res.data.data || []);
       } catch (err) {
         setError('Không thể tải danh sách mẫu. Vui lòng thử lại sau.');
       } finally {

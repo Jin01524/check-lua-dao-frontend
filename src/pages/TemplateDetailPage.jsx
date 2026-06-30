@@ -32,9 +32,10 @@ export default function TemplateDetailPage() {
     const fetch = async () => {
       try {
         const res = await API.get(`/api/templates/${id}`);
-        setTemplate(res.data);
+        setTemplate(res.data.data);
       } catch (err) {
         setError('Không tìm thấy mẫu này hoặc đã bị xóa.');
+        setTemplate(null);
       } finally {
         setLoading(false);
       }

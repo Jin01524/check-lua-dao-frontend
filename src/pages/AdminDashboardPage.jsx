@@ -67,7 +67,7 @@ function ApiKeysTab() {
   const fetchKeys = async () => {
     try {
       const res = await API.get('/api/admin/api-keys');
-      setKeys(res.data || []);
+      setKeys(res.data.data || []);
     } catch {
       setError('Không thể tải danh sách API key.');
     } finally {
@@ -106,7 +106,7 @@ function ApiKeysTab() {
     setError('');
     try {
       const res = await API.post('/api/admin/api-keys', { label: newLabel, key: newKey });
-      setKeys([...keys, res.data]);
+      setKeys([...keys, res.data.data]);
       setNewLabel('');
       setNewKey('');
     } catch (err) {
@@ -225,12 +225,12 @@ function TemplatesTab() {
   const fetchTemplates = async () => {
     try {
       const res = await API.get('/api/admin/templates');
-      setTemplates(res.data || []);
+      setTemplates(res.data.data || []);
     } catch {
       // fallback: try public endpoint
       try {
         const res = await API.get('/api/templates?all=true');
-        setTemplates(res.data || []);
+        setTemplates(res.data.data || []);
       } catch {
         setTemplates([]);
       }
