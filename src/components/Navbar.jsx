@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logoImg from '../assets/Logo-checkluadao.png';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo" onClick={close}>
-          🛡️ CheckLưaĐảo
+          <img src={logoImg} alt="CheckLưaĐảo" style={{ height: '36px', width: 'auto', objectFit: 'contain', display: 'block' }} />
         </Link>
 
         {/* Hamburger */}
