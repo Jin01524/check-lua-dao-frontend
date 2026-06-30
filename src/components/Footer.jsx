@@ -41,7 +41,7 @@ export default function Footer() {
               Dữ liệu phân tích chỉ phục vụ mục đích học tập và cảnh báo cộng đồng. Vui lòng tự che/xóa các thông tin cá nhân đặc biệt nhạy cảm trước khi chụp màn hình gửi kiểm tra.
             </p>
             <div className="footer-copyright">
-              © {new Date().getFullYear()} CheckLưaĐảo. All rights reserved.
+              © {new Date().getFullYear()} CheckLuaDao. All rights reserved.
             </div>
           </div>
         </div>
