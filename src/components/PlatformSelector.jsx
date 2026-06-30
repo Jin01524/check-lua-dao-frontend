@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import smsIcon from '../assets/sms.png';
+import zaloIcon from '../assets/Icon_of_Zalo.png';
+import fbIcon from '../assets/Facebook_f_logo_(2019).png';
 
 const PLATFORMS = [
-  { id: 'sms', emoji: '📱', label: 'SMS' },
-  { id: 'zalo', emoji: '💬', label: 'Zalo' },
-  { id: 'facebook', emoji: '📘', label: 'Facebook' },
+  { id: 'sms', icon: smsIcon, label: 'SMS' },
+  { id: 'zalo', icon: zaloIcon, label: 'Zalo' },
+  { id: 'facebook', icon: fbIcon, label: 'Facebook' },
   { id: 'other', emoji: '✏️', label: 'Khác' },
 ];
 
@@ -52,7 +55,11 @@ export default function PlatformSelector({ value, onChange }) {
             className={`platform-card ${selectedId === platform.id ? 'selected' : ''}`}
             onClick={() => handleSelect(platform.id)}
           >
-            <span className="platform-emoji">{platform.emoji}</span>
+            {platform.icon ? (
+              <img src={platform.icon} alt={platform.label} className="platform-icon" />
+            ) : (
+              <span className="platform-emoji">{platform.emoji}</span>
+            )}
             <span>{platform.label}</span>
           </button>
         ))}
