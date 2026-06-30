@@ -16,7 +16,8 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo" onClick={close}>
-          <img src={logoImg} alt="CheckLuaDao" style={{ height: '36px', width: 'auto', objectFit: 'contain', display: 'block' }} />
+          <img src={logoImg} alt="CheckLuaDao Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain', display: 'block' }} />
+          <span>CheckLuaDao</span>
         </Link>
 
         {/* Hamburger */}
