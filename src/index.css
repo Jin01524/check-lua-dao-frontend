@@ -1554,3 +1554,130 @@ input, textarea, select {
 .danger-low { background: var(--safe); }
 .danger-medium { background: var(--warning); }
 .danger-high { background: var(--danger); }
+
+/* ---------- Footer ---------- */
+.footer {
+  background-color: var(--secondary);
+  color: var(--white);
+  padding: 40px 0 24px;
+  margin-top: 60px;
+  font-size: 0.9rem;
+  border-top: 3px solid var(--primary);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-sdc-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  background: white;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.footer-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--white);
+}
+
+.footer-subtitle {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #a4b0be;
+  margin-top: 2px;
+}
+
+.footer-desc {
+  font-size: 0.875rem;
+  color: #a4b0be;
+  line-height: 1.6;
+}
+
+.footer-dev {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--white);
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.footer-section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--primary);
+}
+
+.footer-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-info-item {
+  color: #a4b0be;
+  font-size: 0.875rem;
+}
+
+.footer-info-item strong {
+  color: var(--white);
+}
+
+.footer-link {
+  color: var(--primary);
+  transition: opacity 0.2s;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+.footer-safety {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-copyright {
+  font-size: 0.8rem;
+  color: #747d8c;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
