@@ -106,7 +106,7 @@ export default function ImageUploader({ files = [], onChange }) {
       const isFormatOk = ['image/jpeg', 'image/png', 'image/jpg'].includes(f.type) || 
                          /\.(jpe?g|png)$/i.test(f.name);
       if (!isFormatOk) {
-        setError(`Ảnh "${f.name}" không đúng định dạng. Chỉ hỗ trợ JPG và PNG.`);
+        setError('Có vẻ ảnh bạn tải lên không phải là ảnh chụp tin nhắn');
         return false;
       }
       if (f.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -123,7 +123,7 @@ export default function ImageUploader({ files = [], onChange }) {
       try {
         const dimensions = await getImageDimensions(f);
         if (!isValidScreenRatio(dimensions.width, dimensions.height)) {
-          setError(`Ảnh "${f.name}" không đúng tỉ lệ màn hình thiết bị phổ biến (ví dụ 9:16, 16:9, 16:10, 4:3, ...).`);
+          setError('Có vẻ ảnh bạn tải lên không phải là ảnh chụp tin nhắn');
           continue;
         }
 

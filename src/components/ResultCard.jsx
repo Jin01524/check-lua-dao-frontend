@@ -28,21 +28,12 @@ export default function ResultCard({ result }) {
   if (isChatScreenshot === false) {
     return (
       <div className="result-card" style={{ borderColor: '#ffeeba' }}>
-        <div className="result-banner warning" style={{ backgroundColor: '#fff3cd', color: '#856404', borderBottom: '1px solid #ffeeba' }}>
+        <div className="result-banner warning" style={{ backgroundColor: '#fff3cd', color: '#856404' }}>
           <span className="result-banner-icon">🖼️</span>
           <div>
             <div className="result-banner-title" style={{ color: '#856404', fontWeight: 600 }}>
-              Ảnh tải lên không phải ảnh chụp màn hình tin nhắn
+              {summary || 'Có vẻ ảnh bạn tải lên không phải là ảnh chụp tin nhắn'}
             </div>
-            <div className="result-banner-sub" style={{ color: '#856404', opacity: 0.9 }}>
-              Phát hiện ảnh chụp đời thực hoặc không chứa cuộc trò chuyện
-            </div>
-          </div>
-        </div>
-        <div className="result-body">
-          <div className="result-section">
-            <div className="result-section-title">Chi tiết phân tích</div>
-            <p style={{ fontSize: '0.95rem', lineHeight: 1.7, color: '#4a4a4a' }}>{summary}</p>
           </div>
         </div>
       </div>
