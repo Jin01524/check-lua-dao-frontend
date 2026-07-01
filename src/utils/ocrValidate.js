@@ -1,14 +1,14 @@
 import { createWorker } from 'tesseract.js';
 
-// Ngưỡng tối thiểu
-const MIN_WORD_COUNT = 5;      // số từ hợp lệ tối thiểu
-const MIN_CONFIDENCE = 60;     // % độ tin cậy tối thiểu của từng từ (lọc ảo giác)
-const MIN_WORD_LENGTH = 2;     // độ dài tối thiểu của từ (loại ký tự đơn lẻ)
+// Ngưỡng tối thiểu - điều chỉnh phù hợp với tiếng Việt
+const MIN_WORD_COUNT = 5;    // số từ hợp lệ tối thiểu
+const MIN_CONFIDENCE = 20;   // tiếng Việt có dấu thường đạt 20–50%, không dùng ngưỡng cao
+const MIN_WORD_LENGTH = 2;   // bỏ ký tự đơn lẻ / noise
 
 /**
- * Kiểm tra danh sách words từ Tesseract (có confidence score).
- * Chỉ đếm từ có confidence >= MIN_CONFIDENCE VÀ có ít nhất MIN_WORD_LENGTH ký tự chữ liền nhau.
- *
+ * Kiểm tra danh sách words từ Tesseract.
+ * Dùng ngưỡng confidence thấp để không bỏ sót tiếng Việt có dấu.
+ * Dùng \p{L} (Unicode letter) thay vì ASCII range để nhận diện đúng.
  * @param {Array<{ text: string, confidence: number }>} words
  * @returns {{ valid: boolean, wordCount: number }}
  */
@@ -17,7 +17,7 @@ function validateOcrWords(words) {
     (w) =>
       w.confidence >= MIN_CONFIDENCE &&
       w.text.length >= MIN_WORD_LENGTH &&
-      /[a-zA-ZÀ-ỹ]{2,}/.test(w.text) // phải có ít nhất 2 ký tự chữ liên tiếp
+      /\p{L}/u.test(w.text) // bất kỳ ký tự chữ Unicode nào (Latin, tiếng Việt, v.v.)
   );
   return { valid: validWords.length >= MIN_WORD_COUNT, wordCount: validWords.length };
 }
@@ -38,7 +38,6 @@ export async function runOcrValidation(imageFiles, onProgress) {
 
   for (let i = 0; i < total; i++) {
     const { data } = await worker.recognize(imageFiles[i]);
-    // data.words là mảng { text, confidence, ... } – chính xác hơn data.text
     if (Array.isArray(data.words)) {
       allWords = allWords.concat(data.words);
     }
