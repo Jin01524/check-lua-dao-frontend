@@ -1,30 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
-import { useImageValidation } from '../hooks/useImageValidation';
 
 export default function HomePage() {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles]       = useState([]);
   const [platform, setPlatform] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
-
-  const { status: imgStatus, progress: imgProgress, warning: imgWarning, validate, reset } = useImageValidation();
-
-  // Khi danh sách ảnh thay đổi → phân tích màu sắc
-  useEffect(() => {
-    if (files.length === 0) {
-      reset();
-      return;
-    }
-    validate(files);
-  }, [files]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Nút bị tắt nếu: đang analyze, đang scan, hoặc cảnh báo màu sắc
-  const submitDisabled = analyzing || imgStatus === 'scanning' || imgStatus === 'warn';
+  const [result, setResult]     = useState(null);
+  const [error, setError]       = useState('');
 
   const handleSubmit = async () => {
     setError('');
@@ -86,35 +71,6 @@ export default function HomePage() {
               Tải ảnh chụp màn hình lên
             </div>
             <ImageUploader files={files} onChange={setFiles} />
-
-            {/* Đang phân tích màu */}
-            {imgStatus === 'scanning' && (
-              <div className="ocr-progress-wrap">
-                <div className="ocr-progress-header">
-                  <span className="spinner spinner-sm" style={{ borderTopColor: '#3498db', borderColor: 'rgba(52,152,219,0.3)' }} />
-                  <span className="ocr-progress-label">Đang phân tích ảnh... {imgProgress}%</span>
-                </div>
-                <div className="ocr-progress-bar-bg">
-                  <div className="ocr-progress-bar-fill" style={{ width: `${imgProgress}%` }} />
-                </div>
-              </div>
-            )}
-
-            {/* Cảnh báo ảnh không hợp lệ */}
-            {imgStatus === 'warn' && (
-              <div className="info-box danger" style={{ marginTop: 12 }}>
-                <span>🖼️</span>
-                <span>{imgWarning}</span>
-              </div>
-            )}
-
-            {/* Xác nhận ảnh hợp lệ */}
-            {imgStatus === 'ok' && files.length > 0 && (
-              <div className="info-box success" style={{ marginTop: 12 }}>
-                <span>✅</span>
-                <span>Ảnh hợp lệ, sẵn sàng phân tích!</span>
-              </div>
-            )}
           </div>
 
           {/* Bước 2 */}
@@ -138,24 +94,12 @@ export default function HomePage() {
           <button
             className="check-btn"
             onClick={handleSubmit}
-            disabled={submitDisabled}
-            title={
-              imgStatus === 'scanning'
-                ? 'Đang phân tích ảnh, vui lòng chờ...'
-                : imgStatus === 'warn'
-                ? 'Ảnh không hợp lệ để phân tích'
-                : ''
-            }
+            disabled={analyzing}
           >
             {analyzing ? (
               <>
                 <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
                 Đang phân tích...
-              </>
-            ) : imgStatus === 'scanning' ? (
-              <>
-                <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
-                Đang kiểm tra ảnh...
               </>
             ) : (
               <>🔍 Kiểm tra ngay</>
