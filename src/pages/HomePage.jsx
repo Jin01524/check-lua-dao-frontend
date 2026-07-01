@@ -3,6 +3,7 @@ import ImageUploader from '../components/ImageUploader';
 import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
   const [files, setFiles]       = useState([]);
@@ -10,36 +11,40 @@ export default function HomePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult]     = useState(null);
   const [error, setError]       = useState('');
+  const { isAdmin, isLoggedIn } = useAuth();
 
   const handleSubmit = async () => {
     setError('');
 
-    // Ràng buộc giới hạn 3 lượt kiểm tra trong vòng 30 phút
+    // Ràng buộc giới hạn 3 lượt kiểm tra trong vòng 30 phút (bỏ qua nếu là admin)
+    const isUserAdmin = isAdmin || isLoggedIn;
     const now = Date.now();
     const LIMIT_MINUTES = 30;
     const LIMIT_COUNT = 3;
     const LIMIT_MS = LIMIT_MINUTES * 60 * 1000;
 
     let checkTimestamps = [];
-    try {
-      const stored = localStorage.getItem('check_limit_timestamps');
-      if (stored) {
-        checkTimestamps = JSON.parse(stored).filter(t => typeof t === 'number');
+    if (!isUserAdmin) {
+      try {
+        const stored = localStorage.getItem('check_limit_timestamps');
+        if (stored) {
+          checkTimestamps = JSON.parse(stored).filter(t => typeof t === 'number');
+        }
+      } catch (e) {
+        checkTimestamps = [];
       }
-    } catch (e) {
-      checkTimestamps = [];
-    }
 
-    // Lọc lại các mốc thời gian trong vòng 30 phút qua
-    checkTimestamps = checkTimestamps.filter(t => now - t < LIMIT_MS);
+      // Lọc lại các mốc thời gian trong vòng 30 phút qua
+      checkTimestamps = checkTimestamps.filter(t => now - t < LIMIT_MS);
 
-    if (checkTimestamps.length >= LIMIT_COUNT) {
-      const oldest = checkTimestamps[0];
-      const remainingMs = (oldest + LIMIT_MS) - now;
-      const minutes = Math.floor(remainingMs / (60 * 1000));
-      const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
-      setError(`Bạn đã vượt quá giới hạn 3 lượt kiểm tra trong 30 phút. Vui lòng quay lại sau ${minutes} phút ${seconds} giây.`);
-      return;
+      if (checkTimestamps.length >= LIMIT_COUNT) {
+        const oldest = checkTimestamps[0];
+        const remainingMs = (oldest + LIMIT_MS) - now;
+        const minutes = Math.floor(remainingMs / (60 * 1000));
+        const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+        setError(`Bạn đã vượt quá giới hạn 3 lượt kiểm tra trong 30 phút. Vui lòng quay lại sau ${minutes} phút ${seconds} giây.`);
+        return;
+      }
     }
 
     if (files.length === 0) {
@@ -67,9 +72,11 @@ export default function HomePage() {
 
       setResult(response.data);
 
-      // Thêm timestamp check thành công
-      checkTimestamps.push(Date.now());
-      localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
+      // Thêm timestamp check thành công (bỏ qua nếu là admin)
+      if (!isUserAdmin) {
+        checkTimestamps.push(Date.now());
+        localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
+      }
 
       files.forEach((item) => {
         if (item.preview) URL.revokeObjectURL(item.preview);
