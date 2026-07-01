@@ -1,14 +1,12 @@
 import { useState, useCallback } from 'react';
-import { validateImageList } from '../utils/colorAnalysis';
+import API from '../api/api';
 
 /**
- * Hook quản lý trạng thái phân tích màu sắc ảnh.
- * Thay thế useOcrValidation (đã bỏ Tesseract.js).
- *
+ * Hook gửi ảnh lên backend để phân tích cấu trúc chat bằng Canny Edge Detection.
  * status: 'idle' | 'scanning' | 'ok' | 'warn'
  */
 export function useImageValidation() {
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus]   = useState('idle');
   const [progress, setProgress] = useState(0);
   const [warning, setWarning] = useState('');
 
@@ -19,32 +17,42 @@ export function useImageValidation() {
   }, []);
 
   /**
-   * Phân tích danh sách ảnh đã upload.
    * @param {Array<{file?: File, compressed: Blob}>} fileItems
    */
   const validate = useCallback(async (fileItems) => {
-    if (!fileItems || fileItems.length === 0) {
-      reset();
-      return;
-    }
+    if (!fileItems || fileItems.length === 0) { reset(); return; }
 
     setStatus('scanning');
     setProgress(0);
     setWarning('');
 
-    try {
-      const result = await validateImageList(fileItems, setProgress);
+    const total = fileItems.length;
 
-      if (result.valid) {
-        setStatus('ok');
-        setWarning('');
-      } else {
-        setStatus('warn');
-        setWarning(result.reason);
+    try {
+      for (let i = 0; i < total; i++) {
+        const src = fileItems[i].file ?? fileItems[i].compressed;
+
+        const formData = new FormData();
+        formData.append('image', src, `img_${i}.jpg`);
+
+        const { data } = await API.post('/api/validate-image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        setProgress(Math.round(((i + 1) / total) * 100));
+
+        if (!data.valid) {
+          setStatus('warn');
+          setWarning(data.reason || 'Ảnh không hợp lệ. Vui lòng gửi ảnh chụp màn hình cuộc trò chuyện.');
+          return;
+        }
       }
+
+      setStatus('ok');
+      setWarning('');
     } catch (err) {
-      console.warn('[ColorAnalysis] Lỗi phân tích ảnh:', err);
-      // Lỗi kỹ thuật → không chặn người dùng, reset về idle
+      console.warn('[ImageValidation] Lỗi kết nối backend:', err.message);
+      // Nếu backend lỗi → không block người dùng
       reset();
     }
   }, [reset]);
