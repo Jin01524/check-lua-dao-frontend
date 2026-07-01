@@ -49,10 +49,10 @@ export function useOcrValidation() {
             : `Ảnh có quá ít chữ (${wordCount} từ). Vui lòng chọn ảnh chụp màn hình có đủ nội dung để AI phân tích.`
         );
       }
-    } catch {
-      // Nếu OCR lỗi (thiếu worker, v.v.) → cho phép tiếp tục nhưng không khóa
-      setOcrStatus('ok');
-      setOcrWarning('');
+    } catch (err) {
+      console.warn('[OCR] Validation error:', err);
+      // Nếu OCR lỗi không block người dùng nhưng reset về idle (không xác nhận ok giả)
+      resetOcr();
     }
   }, [resetOcr]);
 

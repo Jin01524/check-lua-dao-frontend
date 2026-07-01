@@ -23,7 +23,7 @@ export default function HomePage() {
     validateImages(files);
   }, [files]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Nút Kiểm tra bị tắt nếu: đang analyze, đang scan OCR, hoặc OCR cảnh báo
+  // Nút bị tắt nếu: đang analyze, hoặc đang scan OCR, hoặc OCR phát hiện ít chữ
   const submitDisabled = analyzing || ocrStatus === 'scanning' || ocrStatus === 'warn';
 
   const handleSubmit = async () => {
