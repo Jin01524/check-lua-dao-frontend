@@ -52,34 +52,6 @@ export async function compressImage(file) {
 const MAX_FILES = 5;
 const MAX_SIZE_MB = 10;
 
-const COMMON_RATIOS = [
-  9/16, 16/9, 16/10, 10/16, 4/3, 3/4, 3/2, 2/3,
-  19.5/9, 9/19.5, 18/9, 9/18, 20/9, 9/20, 21/9, 9/21,
-  19/9, 9/19
-];
-const TOLERANCE = 0.08;
-
-function isValidScreenRatio(width, height) {
-  const ratio = width / height;
-  return COMMON_RATIOS.some(r => Math.abs(ratio - r) <= TOLERANCE);
-}
-
-function getImageDimensions(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: img.width, height: img.height });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Không thể tải ảnh để lấy kích thước'));
-    };
-    img.src = url;
-  });
-}
-
 /**
  * ImageUploader
  * Props:
@@ -121,12 +93,6 @@ export default function ImageUploader({ files = [], onChange }) {
     const processed = [];
     for (const f of formatValid) {
       try {
-        const dimensions = await getImageDimensions(f);
-        if (!isValidScreenRatio(dimensions.width, dimensions.height)) {
-          setError('Có vẻ ảnh bạn tải lên không phải là ảnh chụp tin nhắn');
-          continue;
-        }
-
         const compressed = await compressImage(f);
         const preview = URL.createObjectURL(f);
         processed.push({ file: f, preview, compressed });
