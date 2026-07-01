@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
+import { useOcrValidation } from '../hooks/useOcrValidation';
 
 export default function HomePage() {
   const [files, setFiles] = useState([]);
@@ -10,6 +11,20 @@ export default function HomePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+
+  const { ocrStatus, ocrProgress, ocrWarning, validateImages, resetOcr } = useOcrValidation();
+
+  // Khi danh sách ảnh thay đổi → chạy OCR validation
+  useEffect(() => {
+    if (files.length === 0) {
+      resetOcr();
+      return;
+    }
+    validateImages(files);
+  }, [files]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Nút Kiểm tra bị tắt nếu: đang analyze, đang scan OCR, hoặc OCR cảnh báo
+  const submitDisabled = analyzing || ocrStatus === 'scanning' || ocrStatus === 'warn';
 
   const handleSubmit = async () => {
     setError('');
@@ -38,7 +53,7 @@ export default function HomePage() {
       });
 
       setResult(response.data);
-      
+
       // Thu hồi (revoke) các Object URL của ảnh cũ để tránh rò rỉ bộ nhớ
       files.forEach((item) => {
         if (item.preview) URL.revokeObjectURL(item.preview);
@@ -72,6 +87,35 @@ export default function HomePage() {
               Tải ảnh chụp màn hình lên
             </div>
             <ImageUploader files={files} onChange={setFiles} />
+
+            {/* OCR scanning progress */}
+            {ocrStatus === 'scanning' && (
+              <div className="ocr-progress-wrap">
+                <div className="ocr-progress-header">
+                  <span className="spinner spinner-sm" style={{ borderTopColor: '#3498db', borderColor: 'rgba(52,152,219,0.3)' }} />
+                  <span className="ocr-progress-label">Đang quét nội dung ảnh... {ocrProgress}%</span>
+                </div>
+                <div className="ocr-progress-bar-bg">
+                  <div className="ocr-progress-bar-fill" style={{ width: `${ocrProgress}%` }} />
+                </div>
+              </div>
+            )}
+
+            {/* OCR warning */}
+            {ocrStatus === 'warn' && (
+              <div className="info-box danger ocr-warning" style={{ marginTop: 12 }}>
+                <span>🖼️</span>
+                <span>{ocrWarning}</span>
+              </div>
+            )}
+
+            {/* OCR ok confirmation (subtle) */}
+            {ocrStatus === 'ok' && files.length > 0 && (
+              <div className="info-box success ocr-ok" style={{ marginTop: 12 }}>
+                <span>✅</span>
+                <span>Ảnh có nội dung chữ rõ ràng, sẵn sàng phân tích!</span>
+              </div>
+            )}
           </div>
 
           {/* Bước 2 */}
@@ -95,12 +139,24 @@ export default function HomePage() {
           <button
             className="check-btn"
             onClick={handleSubmit}
-            disabled={analyzing}
+            disabled={submitDisabled}
+            title={
+              ocrStatus === 'scanning'
+                ? 'Đang quét nội dung ảnh, vui lòng chờ...'
+                : ocrStatus === 'warn'
+                ? 'Ảnh không đủ nội dung chữ để phân tích'
+                : ''
+            }
           >
             {analyzing ? (
               <>
                 <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
                 Đang phân tích...
+              </>
+            ) : ocrStatus === 'scanning' ? (
+              <>
+                <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
+                Đang quét ảnh...
               </>
             ) : (
               <>🔍 Kiểm tra ngay</>
