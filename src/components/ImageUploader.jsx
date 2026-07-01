@@ -52,6 +52,34 @@ export async function compressImage(file) {
 const MAX_FILES = 5;
 const MAX_SIZE_MB = 10;
 
+const COMMON_RATIOS = [
+  9/16, 16/9, 16/10, 10/16, 4/3, 3/4, 3/2, 2/3,
+  19.5/9, 9/19.5, 18/9, 9/18, 20/9, 9/20, 21/9, 9/21,
+  19/9, 9/19
+];
+const TOLERANCE = 0.08;
+
+function isValidScreenRatio(width, height) {
+  const ratio = width / height;
+  return COMMON_RATIOS.some(r => Math.abs(ratio - r) <= TOLERANCE);
+}
+
+function getImageDimensions(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: img.width, height: img.height });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Không thể tải ảnh để lấy kích thước'));
+    };
+    img.src = url;
+  });
+}
+
 /**
  * ImageUploader
  * Props:
@@ -72,8 +100,15 @@ export default function ImageUploader({ files = [], onChange }) {
     }
 
     const candidates = Array.from(incoming).slice(0, remaining);
-    const valid = candidates.filter(f => {
-      if (!f.type.startsWith('image/')) return false;
+    
+    // Ràng buộc định dạng ảnh: jpg, jpeg, png
+    const formatValid = candidates.filter(f => {
+      const isFormatOk = ['image/jpeg', 'image/png', 'image/jpg'].includes(f.type) || 
+                         /\.(jpe?g|png)$/i.test(f.name);
+      if (!isFormatOk) {
+        setError(`Ảnh "${f.name}" không đúng định dạng. Chỉ hỗ trợ JPG và PNG.`);
+        return false;
+      }
       if (f.size > MAX_SIZE_MB * 1024 * 1024) {
         setError(`Ảnh "${f.name}" vượt quá ${MAX_SIZE_MB}MB.`);
         return false;
@@ -81,17 +116,28 @@ export default function ImageUploader({ files = [], onChange }) {
       return true;
     });
 
-    if (valid.length === 0) return;
+    if (formatValid.length === 0) return;
 
-    const processed = await Promise.all(
-      valid.map(async (f) => {
+    const processed = [];
+    for (const f of formatValid) {
+      try {
+        const dimensions = await getImageDimensions(f);
+        if (!isValidScreenRatio(dimensions.width, dimensions.height)) {
+          setError(`Ảnh "${f.name}" không đúng tỉ lệ màn hình thiết bị phổ biến (ví dụ 9:16, 16:9, 16:10, 4:3, ...).`);
+          continue;
+        }
+
         const compressed = await compressImage(f);
         const preview = URL.createObjectURL(f);
-        return { file: f, preview, compressed };
-      })
-    );
+        processed.push({ file: f, preview, compressed });
+      } catch (err) {
+        setError(`Lỗi khi xử lý ảnh "${f.name}": ${err.message}`);
+      }
+    }
 
-    onChange([...files, ...processed]);
+    if (processed.length > 0) {
+      onChange([...files, ...processed]);
+    }
   };
 
   const handleInput = (e) => {

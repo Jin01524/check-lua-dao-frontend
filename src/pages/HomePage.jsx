@@ -14,6 +14,34 @@ export default function HomePage() {
   const handleSubmit = async () => {
     setError('');
 
+    // Ràng buộc giới hạn 3 lượt kiểm tra trong vòng 30 phút
+    const now = Date.now();
+    const LIMIT_MINUTES = 30;
+    const LIMIT_COUNT = 3;
+    const LIMIT_MS = LIMIT_MINUTES * 60 * 1000;
+
+    let checkTimestamps = [];
+    try {
+      const stored = localStorage.getItem('check_limit_timestamps');
+      if (stored) {
+        checkTimestamps = JSON.parse(stored).filter(t => typeof t === 'number');
+      }
+    } catch (e) {
+      checkTimestamps = [];
+    }
+
+    // Lọc lại các mốc thời gian trong vòng 30 phút qua
+    checkTimestamps = checkTimestamps.filter(t => now - t < LIMIT_MS);
+
+    if (checkTimestamps.length >= LIMIT_COUNT) {
+      const oldest = checkTimestamps[0];
+      const remainingMs = (oldest + LIMIT_MS) - now;
+      const minutes = Math.floor(remainingMs / (60 * 1000));
+      const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+      setError(`Bạn đã vượt quá giới hạn 3 lượt kiểm tra trong 30 phút. Vui lòng quay lại sau ${minutes} phút ${seconds} giây.`);
+      return;
+    }
+
     if (files.length === 0) {
       setError('Vui lòng chọn ít nhất 1 ảnh chụp màn hình.');
       return;
@@ -38,6 +66,10 @@ export default function HomePage() {
       });
 
       setResult(response.data);
+
+      // Thêm timestamp check thành công
+      checkTimestamps.push(Date.now());
+      localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
 
       files.forEach((item) => {
         if (item.preview) URL.revokeObjectURL(item.preview);
