@@ -3,7 +3,7 @@ import ImageUploader from '../components/ImageUploader';
 import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
-import { useOcrValidation } from '../hooks/useOcrValidation';
+import { useImageValidation } from '../hooks/useImageValidation';
 
 export default function HomePage() {
   const [files, setFiles] = useState([]);
@@ -12,19 +12,19 @@ export default function HomePage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
-  const { ocrStatus, ocrProgress, ocrWarning, validateImages, resetOcr } = useOcrValidation();
+  const { status: imgStatus, progress: imgProgress, warning: imgWarning, validate, reset } = useImageValidation();
 
-  // Khi danh sách ảnh thay đổi → chạy OCR validation
+  // Khi danh sách ảnh thay đổi → phân tích màu sắc
   useEffect(() => {
     if (files.length === 0) {
-      resetOcr();
+      reset();
       return;
     }
-    validateImages(files);
+    validate(files);
   }, [files]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Nút bị tắt nếu: đang analyze, hoặc đang scan OCR, hoặc OCR phát hiện ít chữ
-  const submitDisabled = analyzing || ocrStatus === 'scanning' || ocrStatus === 'warn';
+  // Nút bị tắt nếu: đang analyze, đang scan, hoặc cảnh báo màu sắc
+  const submitDisabled = analyzing || imgStatus === 'scanning' || imgStatus === 'warn';
 
   const handleSubmit = async () => {
     setError('');
@@ -54,7 +54,6 @@ export default function HomePage() {
 
       setResult(response.data);
 
-      // Thu hồi (revoke) các Object URL của ảnh cũ để tránh rò rỉ bộ nhớ
       files.forEach((item) => {
         if (item.preview) URL.revokeObjectURL(item.preview);
       });
@@ -88,32 +87,32 @@ export default function HomePage() {
             </div>
             <ImageUploader files={files} onChange={setFiles} />
 
-            {/* OCR scanning progress */}
-            {ocrStatus === 'scanning' && (
+            {/* Đang phân tích màu */}
+            {imgStatus === 'scanning' && (
               <div className="ocr-progress-wrap">
                 <div className="ocr-progress-header">
                   <span className="spinner spinner-sm" style={{ borderTopColor: '#3498db', borderColor: 'rgba(52,152,219,0.3)' }} />
-                  <span className="ocr-progress-label">Đang quét nội dung ảnh... {ocrProgress}%</span>
+                  <span className="ocr-progress-label">Đang phân tích ảnh... {imgProgress}%</span>
                 </div>
                 <div className="ocr-progress-bar-bg">
-                  <div className="ocr-progress-bar-fill" style={{ width: `${ocrProgress}%` }} />
+                  <div className="ocr-progress-bar-fill" style={{ width: `${imgProgress}%` }} />
                 </div>
               </div>
             )}
 
-            {/* OCR warning */}
-            {ocrStatus === 'warn' && (
-              <div className="info-box danger ocr-warning" style={{ marginTop: 12 }}>
+            {/* Cảnh báo ảnh không hợp lệ */}
+            {imgStatus === 'warn' && (
+              <div className="info-box danger" style={{ marginTop: 12 }}>
                 <span>🖼️</span>
-                <span>{ocrWarning}</span>
+                <span>{imgWarning}</span>
               </div>
             )}
 
-            {/* OCR ok confirmation (subtle) */}
-            {ocrStatus === 'ok' && files.length > 0 && (
-              <div className="info-box success ocr-ok" style={{ marginTop: 12 }}>
+            {/* Xác nhận ảnh hợp lệ */}
+            {imgStatus === 'ok' && files.length > 0 && (
+              <div className="info-box success" style={{ marginTop: 12 }}>
                 <span>✅</span>
-                <span>Ảnh có nội dung chữ rõ ràng, sẵn sàng phân tích!</span>
+                <span>Ảnh hợp lệ, sẵn sàng phân tích!</span>
               </div>
             )}
           </div>
@@ -141,10 +140,10 @@ export default function HomePage() {
             onClick={handleSubmit}
             disabled={submitDisabled}
             title={
-              ocrStatus === 'scanning'
-                ? 'Đang quét nội dung ảnh, vui lòng chờ...'
-                : ocrStatus === 'warn'
-                ? 'Ảnh không đủ nội dung chữ để phân tích'
+              imgStatus === 'scanning'
+                ? 'Đang phân tích ảnh, vui lòng chờ...'
+                : imgStatus === 'warn'
+                ? 'Ảnh không hợp lệ để phân tích'
                 : ''
             }
           >
@@ -153,10 +152,10 @@ export default function HomePage() {
                 <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
                 Đang phân tích...
               </>
-            ) : ocrStatus === 'scanning' ? (
+            ) : imgStatus === 'scanning' ? (
               <>
                 <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
-                Đang quét ảnh...
+                Đang kiểm tra ảnh...
               </>
             ) : (
               <>🔍 Kiểm tra ngay</>
