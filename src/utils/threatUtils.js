@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tiện ích chuẩn hóa điểm rủi ro (% nguy hiểm) và phân loại mức độ cảnh báo bằng tiếng Việt
  */
 
@@ -33,6 +33,44 @@ export function getConsistentThreatScore(tpl, fallback = 90) {
     hash |= 0;
   }
   return 91 + (Math.abs(hash) % 8); // 91% - 98%
+}
+
+/**
+ * Trả về Mục tiêu tấn công do AI phân tích hoặc từ hồ sơ
+ * Nếu không xác định được rõ ràng thì trả về 'Không rõ'
+ */
+export function getAttackTarget(tpl) {
+  if (!tpl) return 'Không rõ';
+  const target = tpl.attack_target || tpl.attackTarget || tpl.target;
+  if (target && String(target).trim()) {
+    const trimmed = String(target).trim();
+    if (trimmed.toLowerCase() !== 'undefined' && trimmed.toLowerCase() !== 'null') {
+      return trimmed;
+    }
+  }
+
+  // Nếu không có trường attack_target tường minh, suy luận từ scam_type / title / analysis nếu rõ ràng
+  const text = `${tpl.title || ''} ${tpl.scam_type || ''} ${tpl.analysis || ''}`.toLowerCase();
+  if (text.includes('otp') || text.includes('ngân hàng') || text.includes('vietcombank') || text.includes('tài khoản')) {
+    return 'Tài khoản ngân hàng & Mã OTP';
+  }
+  if (text.includes('công an') || text.includes('viện kiểm sát') || text.includes('tạm giữ') || text.includes('tống tiền')) {
+    return 'Tiền tiết kiệm / Tài khoản tạm giữ';
+  }
+  if (text.includes('cộng tác viên') || text.includes('shopee') || text.includes('giật đơn') || text.includes('nạp tiền')) {
+    return 'Tiền nạp nhiệm vụ & Giật đơn';
+  }
+  if (text.includes('thuế') || text.includes('trojan') || text.includes('trợ năng') || text.includes('.apk')) {
+    return 'Quyền kiểm soát thiết bị (Trợ năng)';
+  }
+  if (text.includes('sim') || text.includes('viễn thông') || text.includes('thuê bao')) {
+    return 'Quyền kiểm soát SIM & Mã OTP SMS';
+  }
+  if (text.includes('trúng thưởng') || text.includes('honda') || text.includes('quà tặng')) {
+    return 'Tiền phí hồ sơ / Phí trước bạ';
+  }
+
+  return 'Không rõ';
 }
 
 /**

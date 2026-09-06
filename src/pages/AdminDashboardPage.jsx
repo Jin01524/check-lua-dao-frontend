@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBubble from '../components/ChatBubble';
 import API from '../api/api';
-import { getConsistentThreatScore, getThreatLevel } from '../utils/threatUtils';
+import { getConsistentThreatScore, getThreatLevel, getAttackTarget } from '../utils/threatUtils';
 
 // Modal xem chi tiết mẫu
 function TemplateModal({ template, onClose }) {
@@ -46,6 +46,9 @@ function TemplateModal({ template, onClose }) {
             </span>
             <span className="font-label-badge px-2 py-0.5 rounded font-mono font-bold text-error bg-error-container/20 border border-error/30">
               RỦI RO: {getConsistentThreatScore(template)}%
+            </span>
+            <span className="font-label-badge px-2 py-0.5 rounded text-on-surface-variant bg-surface-container border border-white/10">
+              MỤC TIÊU: <span className="text-primary font-semibold">{getAttackTarget(template)}</span>
             </span>
           </div>
 

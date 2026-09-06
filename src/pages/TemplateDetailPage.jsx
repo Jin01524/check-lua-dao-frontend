@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import ChatBubble from '../components/ChatBubble';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
-import { normalizeThreatScore, getConsistentThreatScore, getThreatLevel } from '../utils/threatUtils';
+import { normalizeThreatScore, getConsistentThreatScore, getThreatLevel, getAttackTarget } from '../utils/threatUtils';
 
 export default function TemplateDetailPage() {
   const { id } = useParams();
@@ -240,7 +240,7 @@ export default function TemplateDetailPage() {
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-3 bg-surface-container rounded-none border border-white/5">
                       <span className="text-on-surface-variant block font-label-caption mb-1">Mục tiêu tấn công</span>
-                      <span className="font-semibold text-primary">Tài khoản & Mã OTP</span>
+                      <span className="font-semibold text-primary">{getAttackTarget(template)}</span>
                     </div>
                     <div className="p-3 bg-surface-container rounded-none border border-white/5">
                       <span className="text-on-surface-variant block font-label-caption mb-1">Cơ chế thao túng</span>
