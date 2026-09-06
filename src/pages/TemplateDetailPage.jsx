@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ChatBubble from '../components/ChatBubble';
 import API from '../api/api';
+import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
 
 export default function TemplateDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [template, setTemplate] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [template, setTemplate] = useState(() => {
+    return DEFAULT_TEMPLATES.find((t) => String(t.id).toLowerCase() === String(id).toLowerCase()) || null;
+  });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -15,13 +18,26 @@ export default function TemplateDetailPage() {
     const fetch = async () => {
       try {
         const res = await API.get(`/api/templates/${id}`);
-        setTemplate(res.data.data);
+        if (res.data?.data) {
+          setTemplate(res.data.data);
+          setError('');
+          return;
+        }
       } catch (err) {
+        console.warn('[TemplateDetailPage] API lookup failed, checking local database:', err.message);
+      }
+
+      const localFound = DEFAULT_TEMPLATES.find(
+        (t) => String(t.id).toLowerCase() === String(id).toLowerCase()
+      );
+      if (localFound) {
+        setTemplate(localFound);
+        setError('');
+      } else {
         setError('Không tìm thấy hồ sơ pháp y này hoặc đã được ẩn.');
         setTemplate(null);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
     fetch();
   }, [id]);

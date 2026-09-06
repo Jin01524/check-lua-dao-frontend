@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
+import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
 
 export default function TemplatesPage() {
-  const [templates, setTemplates] = useState([]);
+  const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
@@ -14,9 +15,14 @@ export default function TemplatesPage() {
     const fetchTemplates = async () => {
       try {
         const res = await API.get('/api/templates');
-        setTemplates(res.data.data || []);
+        if (res.data?.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          setTemplates(res.data.data);
+        } else {
+          setTemplates(DEFAULT_TEMPLATES);
+        }
       } catch (err) {
-        setError('Không thể tải danh sách mẫu. Vui lòng thử lại sau.');
+        console.warn('[TemplatesPage] Using offline threat library:', err.message);
+        setTemplates(DEFAULT_TEMPLATES);
       } finally {
         setLoading(false);
       }
