@@ -72,7 +72,7 @@ export default function ResultCard({ result }) {
               isHighRisk ? 'text-error' : isMediumRisk ? 'text-warning' : 'text-[#10b981]'
             }`}
           >
-            KẾT QUẢ PHÂN TÍCH PHÁP Y SỐ
+            KẾT QUẢ PHÂN TÍCH SỐ
           </span>
         </div>
         <span className="font-code-telemetry text-code-telemetry text-secondary">

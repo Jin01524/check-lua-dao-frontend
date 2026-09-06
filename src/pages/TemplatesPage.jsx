@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
+import { normalizeThreatScore, getThreatLevel } from '../utils/threatUtils';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
@@ -69,7 +70,7 @@ export default function TemplatesPage() {
                 Kho Dữ Liệu Mẫu Tin Nhắn Lừa Đảo Đã Cảnh Báo
               </h1>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-                Tập hợp các thủ đoạn tấn công phi kỹ thuật (Social Engineering), tin nhắn mạo danh độc hại đã qua phân tích pháp y số bởi hệ thống AI chuyên sâu và kiểm chứng bởi đội ngũ an ninh mạng.
+                Tập hợp các thủ đoạn tấn công phi kỹ thuật (Social Engineering), tin nhắn mạo danh độc hại đã qua phân tích số bởi hệ thống AI chuyên sâu và kiểm chứng bởi đội ngũ an ninh mạng.
               </p>
             </div>
 
@@ -85,7 +86,7 @@ export default function TemplatesPage() {
               </div>
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-lg">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Trạng thái</span>
-                <span className="font-label-badge text-label-badge text-[#10b981] font-bold block mt-1">REALTIME</span>
+                <span className="font-label-badge text-label-badge text-[#10b981] font-bold block mt-1">THỜI GIAN THỰC</span>
               </div>
             </div>
           </div>
@@ -184,8 +185,8 @@ export default function TemplatesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
             {filtered.map((tpl) => {
               const id = tpl.id || tpl._id;
-              const danger = tpl.confidence_score || tpl.danger_level || 92;
-              const isHigh = danger >= 70;
+              const danger = normalizeThreatScore(tpl.confidence_score ?? tpl.danger_level ?? tpl.risk_score, 92);
+              const threat = getThreatLevel(danger);
 
               return (
                 <article
@@ -197,13 +198,9 @@ export default function TemplatesPage() {
                     {/* Top Row: Severity & Case Code */}
                     <div className="flex items-center justify-between mb-space-xs">
                       <span
-                        className={`font-label-badge text-label-badge px-2 py-0.5 rounded ${
-                          isHigh
-                            ? 'text-error bg-error-container/20 border border-error/30'
-                            : 'text-warning bg-warning/20 border border-warning/30'
-                        }`}
+                        className={`font-label-badge text-label-badge px-2 py-0.5 rounded font-bold border ${threat.badgeClass}`}
                       >
-                        CRITICAL - {danger}%
+                        {threat.level} - {danger}%
                       </span>
                       <span className="font-code-telemetry text-code-telemetry text-outline">
                         #CASE-{String(id).slice(-5).toUpperCase()}

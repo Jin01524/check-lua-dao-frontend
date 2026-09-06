@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import ChatBubble from '../components/ChatBubble';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
+import { normalizeThreatScore, getThreatLevel } from '../utils/threatUtils';
 
 export default function TemplateDetailPage() {
   const { id } = useParams();
@@ -34,7 +35,7 @@ export default function TemplateDetailPage() {
         setTemplate(localFound);
         setError('');
       } else {
-        setError('Không tìm thấy hồ sơ pháp y này hoặc đã được ẩn.');
+        setError('Không tìm thấy hồ sơ này hoặc đã được ẩn.');
         setTemplate(null);
       }
       setLoading(false);
@@ -66,8 +67,8 @@ export default function TemplateDetailPage() {
     }
   }
 
-  const danger = template?.confidence_score || template?.danger_level || 94;
-  const isHigh = danger >= 70;
+  const danger = normalizeThreatScore(template?.confidence_score ?? template?.danger_level ?? template?.risk_score, 94);
+  const threat = getThreatLevel(danger);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -106,7 +107,7 @@ export default function TemplateDetailPage() {
         {loading && (
           <div className="bg-surface-container-low rounded-xl p-space-2xl border border-white/5 text-center flex flex-col items-center justify-center min-h-[400px]">
             <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4"></div>
-            <div className="text-on-surface font-title-md">Đang tải hồ sơ pháp y số...</div>
+            <div className="text-on-surface font-title-md">Đang tải hồ sơ phân tích số...</div>
           </div>
         )}
 
@@ -126,13 +127,9 @@ export default function TemplateDetailPage() {
               <div className="flex flex-wrap items-center justify-between gap-2 mb-space-xs">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`font-label-badge text-label-badge px-2.5 py-0.5 rounded font-bold ${
-                      isHigh
-                        ? 'text-error bg-error-container/20 border border-error/30'
-                        : 'text-warning bg-warning/20 border border-warning/30'
-                    }`}
+                    className={`font-label-badge text-label-badge px-2.5 py-0.5 rounded font-bold border ${threat.badgeClass}`}
                   >
-                    CRITICAL - {danger}%
+                    {threat.level} - {danger}%
                   </span>
                   <span className="font-label-badge text-label-badge px-2 py-0.5 bg-surface-container text-primary rounded border border-primary/30 uppercase">
                     {template.platform || 'SMS'}
@@ -244,7 +241,7 @@ export default function TemplateDetailPage() {
                     </div>
                     <div className="p-3 bg-surface-container rounded-lg border border-white/5">
                       <span className="text-on-surface-variant block font-label-caption mb-1">Mức độ nguy hiểm</span>
-                      <span className="font-semibold text-error">{danger}% (Rất cao)</span>
+                      <span className="font-semibold text-error">{danger}% ({threat.textDesc})</span>
                     </div>
                   </div>
 
