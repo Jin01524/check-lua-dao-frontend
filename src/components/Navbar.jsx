@@ -93,16 +93,16 @@ export default function Navbar() {
 
           {/* Hotline Pill */}
           <a
-            href="tel:19006868"
+            href="tel:18001031"
             className="border border-error/40 bg-error-container/15 text-error hover:bg-error-container/30 hover:border-error/70 transition-all text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-            title="Đường dây nóng khẩn cấp"
+            title="Tổng đài An toàn mạng quốc gia 1800.1031"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
             </span>
             <span className="material-symbols-outlined text-[16px]">e911_emergency</span>
-            <span className="hidden sm:inline font-title-md text-xs">Cứu trợ khẩn</span>
+            <span className="hidden sm:inline font-title-md text-xs">Cứu trợ 1800.1031</span>
           </a>
 
           {/* User Auth Info / Actions */}

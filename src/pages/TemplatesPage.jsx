@@ -237,7 +237,7 @@ export default function TemplatesPage() {
                     </span>
 
                     <span className="text-primary font-semibold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
-                      <span>Xem pháp y</span>
+                      <span>Xem chi tiết</span>
                       <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                     </span>
                   </div>

@@ -1,5 +1,3 @@
-import logoSdc from '../assets/logo-sdc.png';
-
 export default function Footer() {
   return (
     <footer className="w-full bg-surface-container-lowest py-space-2xl border-t border-white/5 mt-auto">
@@ -28,10 +26,10 @@ export default function Footer() {
             <div className="space-y-space-xs">
               <div className="p-space-sm bg-surface-container-low rounded-xl border border-white/5">
                 <div className="font-label-caption text-label-caption text-error font-semibold">
-                  Tổng đài tiếp nhận khẩn cấp 24/7
+                  Tổng đài An toàn mạng quốc gia
                 </div>
                 <div className="font-headline-sm text-headline-sm text-on-surface font-label-badge font-bold">
-                  1900 6868 (Ext: 1)
+                  1800.1031
                 </div>
               </div>
               <div className="p-space-sm bg-surface-container-low rounded-xl border border-white/5">
@@ -49,13 +47,6 @@ export default function Footer() {
           <div>
             <div className="font-title-md text-title-md text-on-surface mb-space-md uppercase tracking-wider">
               Đơn vị phát triển & Hợp tác
-            </div>
-            <div className="flex items-center gap-3 mb-3 p-2 bg-surface-container-low/60 rounded-lg border border-white/5">
-              <img src={logoSdc} alt="SDC Logo" className="h-10 w-auto object-contain" />
-              <div className="text-xs text-on-surface-variant">
-                <div className="font-semibold text-on-surface">Trung tâm SDC</div>
-                <div>Đại học Đà Nẵng</div>
-              </div>
             </div>
             <ul className="space-y-space-xs font-body-sm text-body-sm text-on-surface-variant">
               <li className="flex items-center gap-space-2xs hover:text-on-surface transition-colors cursor-pointer">

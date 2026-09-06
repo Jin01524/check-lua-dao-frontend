@@ -269,11 +269,12 @@ export default function TemplateDetailPage() {
                     <div className="text-on-surface-variant mt-0.5">Hãy gọi ngay tổng đài ứng cứu khẩn cấp</div>
                   </div>
                   <a
-                    href="tel:19006868"
+                    href="tel:18001031"
+                    title="Tổng đài An toàn mạng quốc gia 1800.1031"
                     className="py-2 px-3 bg-error text-white font-bold text-xs rounded-lg flex items-center gap-1 shadow-sm hover:opacity-90 transition-opacity flex-shrink-0"
                   >
                     <span className="material-symbols-outlined text-[16px]">call</span>
-                    <span>1900 6868</span>
+                    <span>1800.1031</span>
                   </a>
                 </div>
               </div>

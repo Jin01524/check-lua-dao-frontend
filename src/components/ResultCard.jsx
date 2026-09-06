@@ -200,11 +200,12 @@ export default function ResultCard({ result }) {
         </button>
 
         <a
-          href="tel:19006868"
+          href="tel:18001031"
           className="py-2 px-3 bg-error-container hover:bg-error text-white rounded-lg font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+          title="Tổng đài An toàn mạng quốc gia"
         >
           <span className="material-symbols-outlined text-[16px]">e911_emergency</span>
-          <span>Báo cáo cơ quan A05</span>
+          <span>Tổng đài 1800.1031</span>
         </a>
       </div>
     </div>
