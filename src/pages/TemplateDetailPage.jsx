@@ -180,22 +180,26 @@ export default function TemplateDetailPage() {
                     <span>Nội dung tin nhắn lừa đảo</span>
                   </div>
 
-                  {/* Message box */}
-                  <div className="bg-surface-container-high p-4 rounded-none border border-white/5 font-code-telemetry text-sm text-on-surface leading-relaxed shadow-inner">
-                    {template.content || template.message || template.analysis || (
-                      <span className="text-on-surface-variant italic">Không có văn bản tin nhắn thô</span>
-                    )}
-                  </div>
+                  {/* Message box (only display when raw text content exists) */}
+                  {(template.content || template.message) && (
+                    <div className="bg-surface-container-high p-4 rounded-none border border-white/5 font-code-telemetry text-sm text-on-surface leading-relaxed shadow-inner mb-space-xs">
+                      {template.content || template.message}
+                    </div>
+                  )}
 
                   {/* Extracted bubbles */}
-                  {messages.length > 0 && (
-                    <div className="mt-space-sm space-y-2">
+                  {messages.length > 0 ? (
+                    <div className="space-y-2">
                       <div className="text-xs font-label-badge text-secondary">CHI TIẾT HỘP THOẠI:</div>
                       {messages.map((m, idx) => (
                         <ChatBubble key={idx} sender={m.sender} text={m.text} />
                       ))}
                     </div>
-                  )}
+                  ) : !(template.content || template.message) ? (
+                    <div className="bg-surface-container-high p-4 rounded-none border border-white/5 font-code-telemetry text-sm text-on-surface-variant italic leading-relaxed shadow-inner">
+                      Không có văn bản tin nhắn thô
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* Warning Points Checklist */}
