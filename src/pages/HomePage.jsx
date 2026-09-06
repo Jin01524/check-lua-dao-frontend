@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
@@ -12,7 +12,31 @@ export default function HomePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [stats, setStats] = useState({
+    totalScans: 0,
+    warnedScans: 0,
+    maxConfidence: 0,
+  });
   const { isAdmin, isLoggedIn } = useAuth();
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await API.get('/api/stats');
+      if (res.data) {
+        setStats({
+          totalScans: res.data.totalScans || 0,
+          warnedScans: res.data.warnedScans || 0,
+          maxConfidence: res.data.maxConfidence || 0,
+        });
+      }
+    } catch (err) {
+      console.warn('Could not fetch stats:', err.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const handleSubmit = async () => {
     setError('');
@@ -74,6 +98,7 @@ export default function HomePage() {
       });
 
       setResult(response.data);
+      fetchStats();
 
       if (!isUserAdmin) {
         checkTimestamps.push(Date.now());
@@ -123,22 +148,30 @@ export default function HomePage() {
 
           {/* Quick Live Telemetry Stat Pills */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-sm w-full max-w-3xl">
-            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center">
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
               <span className="font-label-badge text-label-badge text-tertiary uppercase">Tổng tin nhắn quét</span>
-              <span className="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">124,580+</span>
-              <span className="font-label-caption text-label-caption text-secondary">Cập nhật theo thời gian thực</span>
+              <span className="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">
+                {stats.totalScans.toLocaleString('vi-VN')}
+              </span>
+              <span className="font-label-caption text-label-caption text-secondary">Số liệu thực tế hệ thống</span>
             </div>
 
-            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center">
-              <span className="font-label-badge text-label-badge text-primary uppercase">Độ chuẩn xác phân loại</span>
-              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">98.6%</span>
-              <span className="font-label-caption text-label-caption text-secondary">Chứng thực bởi VNCERT</span>
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+              <span className="font-label-badge text-label-badge text-primary uppercase line-clamp-1">
+                Mức độ cảnh báo cao nhất được ghi nhận
+              </span>
+              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">
+                {stats.maxConfidence > 0 ? `${stats.maxConfidence}%` : 'Chưa ghi nhận'}
+              </span>
+              <span className="font-label-caption text-label-caption text-secondary">Chỉ số rủi ro nguy cấp nhất</span>
             </div>
 
-            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center">
-              <span className="font-label-badge text-label-badge text-error uppercase">Cứu nguy nạn nhân</span>
-              <span className="font-headline-md text-headline-md text-error font-bold tracking-tight">42,000+</span>
-              <span className="font-label-caption text-label-caption text-secondary">Tránh thiệt hại tài chính</span>
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+              <span className="font-label-badge text-label-badge text-error uppercase">Số tin nhắn được cảnh báo</span>
+              <span className="font-headline-md text-headline-md text-error font-bold tracking-tight">
+                {stats.warnedScans.toLocaleString('vi-VN')}
+              </span>
+              <span className="font-label-caption text-label-caption text-secondary">Phát hiện thủ đoạn lừa đảo</span>
             </div>
           </div>
         </section>
@@ -232,12 +265,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-center gap-space-md mt-space-xs text-on-surface-variant font-label-caption text-label-caption">
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-primary text-[14px]">lock</span>
-                    Bảo mật SHA-256
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-tertiary text-[14px]">bolt</span>
-                    Xử lý tức thì: 0.82 giây
+                    Bảo mật chuẩn SHA-256
                   </span>
                 </div>
               </div>
@@ -294,49 +322,20 @@ export default function HomePage() {
               /* Real-time Forensic Result */
               <ResultCard result={result} />
             ) : (
-              /* Default / Demonstration Preview Card */
-              <div className="bg-surface-container rounded-xl p-space-lg shadow-xl border border-white/5 flex flex-col gap-space-md">
-                <div className="flex items-center justify-between pb-space-xs border-b border-white/5">
-                  <div className="flex items-center gap-space-2xs">
-                    <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                    <span className="font-label-badge text-label-badge text-secondary uppercase">
-                      MẪU MINH HỌA THỦ ĐOẠN PHỔ BIẾN
-                    </span>
-                  </div>
-                  <span className="font-code-telemetry text-code-telemetry text-outline">DEMO #0849</span>
+              /* Ready State */
+              <div className="bg-surface-container-low rounded-xl p-space-xl border border-white/5 shadow-md flex flex-col items-center justify-center text-center min-h-[380px] gap-3">
+                <div className="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary/80 mb-1 border border-white/5">
+                  <span className="material-symbols-outlined text-[36px]">radar</span>
                 </div>
-
-                <div className="bg-surface-container-high p-space-sm rounded-xl text-left border border-white/5">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <span className="material-symbols-outlined text-tertiary text-[16px]">account_balance</span>
-                    <span className="font-label-badge text-[11px] text-tertiary uppercase font-bold">
-                      VIETCOMBANK-NOTIF
-                    </span>
-                  </div>
-                  <p className="font-code-telemetry text-xs text-on-surface leading-relaxed mb-2">
-                    [TB] TK 007100*** bi khoa do dang nhap bat thuong. Vui long truy cap{' '}
-                    <span className="text-error underline font-bold">vcb-digi-bank.vip/login</span>{' '}
-                    de xac minh va nhan ma OTP cap nhat han muc 50tr ngay lap tuc truoc 24h.
-                  </p>
-                  <span className="font-label-caption text-[10px] text-on-surface-variant block text-right">
-                    14:28 • Hôm nay
-                  </span>
+                <div className="font-headline-sm text-on-surface font-semibold">
+                  Hệ Thống Sẵn Sàng Phân Tích
                 </div>
-
-                <div className="p-space-sm bg-error-container/20 border border-error/30 rounded-xl text-xs space-y-1">
-                  <div className="font-semibold text-error flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[16px]">warning</span>
-                    Các dấu hiệu lừa đảo trong mẫu trên:
-                  </div>
-                  <ul className="text-on-surface-variant list-disc pl-4 space-y-0.5">
-                    <li>Tên miền giả mạo: <code className="text-error font-mono">vcb-digi-bank.vip</code> thay vì <code className="text-[#10b981] font-mono">vietcombank.com.vn</code></li>
-                    <li>Gây hoang mang & hối thúc: "Khóa tài khoản", "Trước 24h"</li>
-                    <li>Yêu cầu đăng nhập và nhập mã OTP</li>
-                  </ul>
-                </div>
-
-                <div className="text-center text-xs text-on-surface-variant pt-1 font-body-sm">
-                  Hãy tải ảnh chụp màn hình của bạn ở cột bên trái để AI tiến hành phân tích tức thì.
+                <p className="font-body-sm text-on-surface-variant max-w-sm leading-relaxed">
+                  Tải lên ảnh chụp màn hình hoặc dán nội dung tin nhắn nghi vấn ở cột bên trái, sau đó nhấn <span className="text-primary font-medium">"Kiểm tra ngay với AI"</span> để nhận báo cáo bóc tách chi tiết.
+                </p>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-xs text-on-surface-variant border border-white/5 mt-2">
+                  <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                  <span>Mô hình Gemini Vision & Threat Intelligence trực tuyến</span>
                 </div>
               </div>
             )}
