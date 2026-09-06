@@ -127,7 +127,7 @@ export default function ResultCard({ result }) {
         <div className="p-space-sm bg-surface-container-low rounded-none border border-white/5">
           <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-tertiary uppercase mb-1">
             <span className="material-symbols-outlined text-[16px]">psychology</span>
-            <span>Đánh giá từ AI DeepScan</span>
+            <span>Đánh giá từ AI</span>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
             {summary}

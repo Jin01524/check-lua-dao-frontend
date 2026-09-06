@@ -295,17 +295,11 @@ export default function HomePage() {
               <div className="bg-surface-container rounded-none p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-4 min-h-[420px]">
                 <div className="relative flex items-center justify-center">
                   <div className="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
-                  <span className="material-symbols-outlined text-tertiary text-[28px] absolute inset-0 m-auto flex items-center justify-center animate-pulse">
-                    radar
-                  </span>
                 </div>
                 <div>
                   <div className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                    Đang giải phẫu mẫu tin...
+                    Đang xem xét...
                   </div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 max-w-xs">
-                    Đang kích hoạt mô hình Gemini Vision & tra cứu cơ sở dữ liệu các chiến dịch lừa đảo đang hoạt động...
-                  </p>
                 </div>
                 <div className="flex flex-col gap-1 w-full max-w-xs text-xs font-label-badge text-secondary mt-2">
                   <div className="flex justify-between">
