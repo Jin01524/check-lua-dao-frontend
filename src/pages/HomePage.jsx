@@ -293,9 +293,6 @@ export default function HomePage() {
             {analyzing ? (
               /* Loading State */
               <div className="bg-surface-container rounded-none p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-4 min-h-[420px]">
-                <div className="relative flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
-                </div>
                 <div>
                   <div className="font-headline-sm text-headline-sm font-bold text-on-surface">
                     Đang xem xét...
