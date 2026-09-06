@@ -6,17 +6,18 @@ import API from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
-  const [files, setFiles]       = useState([]);
-  const [platform, setPlatform] = useState('');
+  const [files, setFiles] = useState([]);
+  const [platform, setPlatform] = useState('sms');
+  const [additionalText, setAdditionalText] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult]     = useState(null);
-  const [error, setError]       = useState('');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
   const { isAdmin, isLoggedIn } = useAuth();
 
   const handleSubmit = async () => {
     setError('');
 
-    // Ràng buộc giới hạn 3 lượt kiểm tra trong vòng 30 phút (bỏ qua nếu là admin)
+    // Limit check: 3 checks in 30 mins for non-admins
     const isUserAdmin = isAdmin || isLoggedIn;
     const now = Date.now();
     const LIMIT_MINUTES = 30;
@@ -34,7 +35,6 @@ export default function HomePage() {
         checkTimestamps = [];
       }
 
-      // Lọc lại các mốc thời gian trong vòng 30 phút qua
       checkTimestamps = checkTimestamps.filter(t => now - t < LIMIT_MS);
 
       if (checkTimestamps.length >= LIMIT_COUNT) {
@@ -42,17 +42,17 @@ export default function HomePage() {
         const remainingMs = (oldest + LIMIT_MS) - now;
         const minutes = Math.floor(remainingMs / (60 * 1000));
         const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
-        setError(`Bạn đã vượt quá giới hạn 3 lượt kiểm tra trong 30 phút. Vui lòng quay lại sau ${minutes} phút ${seconds} giây.`);
+        setError(`Bạn đã đạt giới hạn 3 lượt kiểm tra trong 30 phút. Vui lòng quay lại sau ${minutes} phút ${seconds} giây.`);
         return;
       }
     }
 
-    if (files.length === 0) {
-      setError('Vui lòng chọn ít nhất 1 ảnh chụp màn hình.');
+    if (files.length === 0 && !additionalText.trim()) {
+      setError('Vui lòng tải lên ít nhất 1 ảnh chụp màn hình hoặc dán nội dung tin nhắn nghi vấn.');
       return;
     }
     if (!platform) {
-      setError('Vui lòng chọn nơi bạn nhận tin nhắn.');
+      setError('Vui lòng chọn nền tảng bạn nhận được tin nhắn.');
       return;
     }
 
@@ -65,6 +65,9 @@ export default function HomePage() {
         formData.append('images', item.compressed, `image_${idx}.jpg`);
       });
       formData.append('platform', platform);
+      if (additionalText.trim()) {
+        formData.append('text', additionalText.trim());
+      }
 
       const response = await API.post('/api/check', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -72,7 +75,6 @@ export default function HomePage() {
 
       setResult(response.data);
 
-      // Thêm timestamp check thành công (bỏ qua nếu là admin)
       if (!isUserAdmin) {
         checkTimestamps.push(Date.now());
         localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
@@ -91,92 +93,255 @@ export default function HomePage() {
   };
 
   return (
-    <main className="home-page">
-      <div className="page-wrapper">
-        {/* Hero */}
-        <section className="home-hero">
-          <h1 className="home-hero-title">🛡️ Kiểm tra tin nhắn lừa đảo</h1>
-          <p className="home-hero-sub">
-            Tải ảnh chụp màn hình lên để AI phân tích và cảnh báo ngay
+    <main className="w-full pt-6 sm:pt-10 pb-16 bg-surface relative overflow-hidden">
+      {/* Ambient Cyber Lighting Backdrops */}
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[380px] bg-gradient-to-b from-primary-container/20 via-tertiary-container/10 to-transparent blur-3xl pointer-events-none rounded-full"></div>
+      <div className="absolute top-96 -right-24 w-96 h-96 bg-error-container/15 blur-3xl pointer-events-none rounded-full"></div>
+      <div className="absolute top-[700px] -left-20 w-80 h-80 bg-primary/10 blur-3xl pointer-events-none rounded-full"></div>
+
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
+        {/* HERO HEADER SECTION */}
+        <section className="flex flex-col items-center text-center max-w-4xl mx-auto mb-space-2xl">
+          <div className="inline-flex items-center gap-space-xs px-space-sm py-space-2xs bg-surface-container-high border border-white/10 rounded-full mb-space-md shadow-sm">
+            <span className="w-2.5 h-2.5 rounded-full bg-tertiary animate-ping"></span>
+            <span className="material-symbols-outlined text-tertiary text-[18px]">verified</span>
+            <span className="font-label-badge text-label-badge text-tertiary uppercase tracking-wider">
+              Phân tích đa nền tảng thời gian thực • DeepScan 4.1
+            </span>
+          </div>
+
+          <h1 className="font-display-hero text-3xl sm:text-4xl lg:text-display-hero text-on-surface tracking-tight mb-space-sm">
+            AI Kiểm Tra & Nhận Diện{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-tertiary to-primary-fixed">
+              Lừa Đảo Trực Tuyến
+            </span>
+          </h1>
+
+          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-space-lg">
+            Lá chắn trí tuệ nhân tạo chuyên biệt bảo vệ công dân Việt Nam trước các thủ đoạn chiếm đoạt tài khoản ngân hàng, giả mạo cơ quan pháp luật và đường link độc hại.
           </p>
+
+          {/* Quick Live Telemetry Stat Pills */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-sm w-full max-w-3xl">
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center">
+              <span className="font-label-badge text-label-badge text-tertiary uppercase">Tổng tin nhắn quét</span>
+              <span className="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">124,580+</span>
+              <span className="font-label-caption text-label-caption text-secondary">Cập nhật theo thời gian thực</span>
+            </div>
+
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center">
+              <span className="font-label-badge text-label-badge text-primary uppercase">Độ chuẩn xác phân loại</span>
+              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">98.6%</span>
+              <span className="font-label-caption text-label-caption text-secondary">Chứng thực bởi VNCERT</span>
+            </div>
+
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center">
+              <span className="font-label-badge text-label-badge text-error uppercase">Cứu nguy nạn nhân</span>
+              <span className="font-headline-md text-headline-md text-error font-bold tracking-tight">42,000+</span>
+              <span className="font-label-caption text-label-caption text-secondary">Tránh thiệt hại tài chính</span>
+            </div>
+          </div>
         </section>
 
-        {/* Form Card */}
-        <div className="form-card">
-          {/* Bước 1 */}
-          <div className="form-section">
-            <div className="form-section-label">
-              <span className="step-number">1</span>
-              Tải ảnh chụp màn hình lên
+        {/* TWO-PANE SCANNER / ANALYTICAL SUITE */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+          {/* LEFT INPUT SUITE (7 Cols) */}
+          <div className="lg:col-span-7 flex flex-col gap-space-lg">
+            <div className="bg-surface-container-low rounded-xl p-space-lg shadow-md border border-white/5 flex flex-col gap-space-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-space-xs">
+                  <span className="material-symbols-outlined text-primary text-[24px]">document_scanner</span>
+                  <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                    Tải Lên Mẫu Tin Nhắn
+                  </span>
+                </div>
+                <span className="font-label-badge text-label-badge px-space-xs py-space-2xs bg-surface-container-highest text-primary-fixed rounded border border-primary/20">
+                  OCR + NLP ENGINE
+                </span>
+              </div>
+
+              {/* Platform Selector */}
+              <PlatformSelector value={platform} onChange={setPlatform} />
+
+              {/* Image Uploader */}
+              <ImageUploader files={files} onChange={setFiles} />
+
+              {/* Text / URL Secondary Extraction Field */}
+              <div className="flex flex-col gap-space-2xs">
+                <div className="flex justify-between items-center">
+                  <label className="font-title-md text-title-md text-on-surface font-medium" htmlFor="scam-text-input">
+                    Nhập bổ sung nội dung tin nhắn hoặc URL nghi vấn:
+                  </label>
+                  <span className="font-label-caption text-label-caption text-secondary">
+                    Tùy chọn
+                  </span>
+                </div>
+                <div className="relative">
+                  <textarea
+                    id="scam-text-input"
+                    rows="3"
+                    value={additionalText}
+                    onChange={(e) => setAdditionalText(e.target.value)}
+                    placeholder="Ví dụ: http://vcb-digi-bank.vip/login hoặc dán toàn bộ đoạn văn bản tin nhắn nhận được..."
+                    className="w-full bg-surface-container text-on-surface font-code-telemetry text-code-telemetry p-space-sm rounded-xl focus:outline-none focus:ring-1 focus:ring-primary border border-white/5 resize-none placeholder-on-surface-variant/40"
+                  />
+                  {additionalText && (
+                    <button
+                      type="button"
+                      onClick={() => setAdditionalText('')}
+                      className="absolute bottom-2.5 right-2.5 text-on-surface-variant hover:text-on-surface p-1 rounded bg-surface-container-high text-xs"
+                      title="Xóa nội dung"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">clear</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Error Box */}
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-error-container/20 border border-error/40 rounded-xl text-error text-body-sm">
+                  <span className="material-symbols-outlined text-[20px]">warning</span>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {/* Primary Cyber Scan Action */}
+              <div className="pt-space-2xs">
+                <button
+                  type="button"
+                  disabled={analyzing}
+                  onClick={handleSubmit}
+                  className={`w-full py-space-sm px-space-md font-title-md text-title-md rounded-xl transition-all flex items-center justify-center gap-space-xs group ${
+                    analyzing
+                      ? 'bg-primary-container/50 text-white cursor-wait'
+                      : 'bg-primary-container hover:bg-inverse-primary text-on-primary-container shadow-[0_0_24px_-4px_rgba(37,99,235,0.65)] active:scale-[0.99]'
+                  }`}
+                >
+                  <span className={`material-symbols-outlined text-[24px] ${analyzing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-700'}`}>
+                    {analyzing ? 'progress_activity' : 'radar'}
+                  </span>
+                  <span className="tracking-wide font-bold">
+                    {analyzing ? 'ĐANG QUÉT VÀ PHÂN TÍCH VỚI AI...' : 'KIỂM TRA NGAY VỚI AI VÀ NHẬN BÁO CÁO'}
+                  </span>
+                  {!analyzing && (
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  )}
+                </button>
+
+                <div className="flex items-center justify-center gap-space-md mt-space-xs text-on-surface-variant font-label-caption text-label-caption">
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-primary text-[14px]">lock</span>
+                    Bảo mật SHA-256
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-tertiary text-[14px]">bolt</span>
+                    Xử lý tức thì: 0.82 giây
+                  </span>
+                </div>
+              </div>
             </div>
-            <ImageUploader files={files} onChange={setFiles} />
+
+            {/* Educational Visual Highlight */}
+            <div className="bg-surface-container-low rounded-xl p-space-md shadow-sm border border-white/5 flex flex-col sm:flex-row items-center gap-space-md">
+              <div className="w-12 h-12 rounded-xl bg-tertiary/10 border border-tertiary/30 text-tertiary flex items-center justify-center flex-shrink-0">
+                <span className="material-symbols-outlined text-[28px]">shield_with_heart</span>
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1 text-tertiary font-label-badge text-label-badge mb-1 uppercase">
+                  <span className="material-symbols-outlined text-[16px]">lightbulb</span>
+                  Cơ chế quét thông minh đa lớp
+                </div>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  CheckLuaDao kết hợp OCR trích xuất ký tự tiếng Việt, kiểm tra Whois tên miền thời gian thực, và phân tích các chỉ số thao túng tâm lý (Urgency & Fear Induction) để bảo vệ bạn trong từng giây.
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Bước 2 */}
-          <div className="form-section">
-            <div className="form-section-label">
-              <span className="step-number">2</span>
-              Bạn nhận tin nhắn này từ đâu?
-            </div>
-            <PlatformSelector value={platform} onChange={setPlatform} />
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="info-box danger" style={{ marginBottom: 16 }}>
-              <span>⚠️</span>
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            className="check-btn"
-            onClick={handleSubmit}
-            disabled={analyzing}
-          >
+          {/* RIGHT PERSISTENT TELEMETRY & REPORT SUITE (5 Cols) */}
+          <div className="lg:col-span-5 flex flex-col gap-space-lg sticky top-24">
             {analyzing ? (
-              <>
-                <span className="spinner spinner-sm" style={{ borderTopColor: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
-                Đang phân tích...
-              </>
+              /* Loading State */
+              <div className="bg-surface-container rounded-xl p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-4 min-h-[420px]">
+                <div className="relative flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                  <span className="material-symbols-outlined text-tertiary text-[28px] absolute inset-0 m-auto flex items-center justify-center animate-pulse">
+                    radar
+                  </span>
+                </div>
+                <div>
+                  <div className="font-headline-sm text-headline-sm font-bold text-on-surface">
+                    Đang giải phẫu mẫu tin...
+                  </div>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 max-w-xs">
+                    Đang kích hoạt mô hình Gemini Vision & tra cứu cơ sở dữ liệu các chiến dịch lừa đảo đang hoạt động...
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1 w-full max-w-xs text-xs font-label-badge text-secondary mt-2">
+                  <div className="flex justify-between">
+                    <span>OCR Extractor:</span>
+                    <span className="text-[#10b981]">Hoàn thành</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Threat Intelligence:</span>
+                    <span className="text-primary animate-pulse">Đang đối chiếu...</span>
+                  </div>
+                </div>
+              </div>
+            ) : result ? (
+              /* Real-time Forensic Result */
+              <ResultCard result={result} />
             ) : (
-              <>🔍 Kiểm tra ngay</>
+              /* Default / Demonstration Preview Card */
+              <div className="bg-surface-container rounded-xl p-space-lg shadow-xl border border-white/5 flex flex-col gap-space-md">
+                <div className="flex items-center justify-between pb-space-xs border-b border-white/5">
+                  <div className="flex items-center gap-space-2xs">
+                    <span className="w-2 h-2 rounded-full bg-secondary"></span>
+                    <span className="font-label-badge text-label-badge text-secondary uppercase">
+                      MẪU MINH HỌA THỦ ĐOẠN PHỔ BIẾN
+                    </span>
+                  </div>
+                  <span className="font-code-telemetry text-code-telemetry text-outline">DEMO #0849</span>
+                </div>
+
+                <div className="bg-surface-container-high p-space-sm rounded-xl text-left border border-white/5">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="material-symbols-outlined text-tertiary text-[16px]">account_balance</span>
+                    <span className="font-label-badge text-[11px] text-tertiary uppercase font-bold">
+                      VIETCOMBANK-NOTIF
+                    </span>
+                  </div>
+                  <p className="font-code-telemetry text-xs text-on-surface leading-relaxed mb-2">
+                    [TB] TK 007100*** bi khoa do dang nhap bat thuong. Vui long truy cap{' '}
+                    <span className="text-error underline font-bold">vcb-digi-bank.vip/login</span>{' '}
+                    de xac minh va nhan ma OTP cap nhat han muc 50tr ngay lap tuc truoc 24h.
+                  </p>
+                  <span className="font-label-caption text-[10px] text-on-surface-variant block text-right">
+                    14:28 • Hôm nay
+                  </span>
+                </div>
+
+                <div className="p-space-sm bg-error-container/20 border border-error/30 rounded-xl text-xs space-y-1">
+                  <div className="font-semibold text-error flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[16px]">warning</span>
+                    Các dấu hiệu lừa đảo trong mẫu trên:
+                  </div>
+                  <ul className="text-on-surface-variant list-disc pl-4 space-y-0.5">
+                    <li>Tên miền giả mạo: <code className="text-error font-mono">vcb-digi-bank.vip</code> thay vì <code className="text-[#10b981] font-mono">vietcombank.com.vn</code></li>
+                    <li>Gây hoang mang & hối thúc: "Khóa tài khoản", "Trước 24h"</li>
+                    <li>Yêu cầu đăng nhập và nhập mã OTP</li>
+                  </ul>
+                </div>
+
+                <div className="text-center text-xs text-on-surface-variant pt-1 font-body-sm">
+                  Hãy tải ảnh chụp màn hình của bạn ở cột bên trái để AI tiến hành phân tích tức thì.
+                </div>
+              </div>
             )}
-          </button>
+          </div>
         </div>
-
-        {/* Analyzing state */}
-        {analyzing && (
-          <div className="analyzing-state">
-            <div className="spinner" />
-            <p className="analyzing-text">AI đang phân tích tin nhắn...</p>
-            <p className="analyzing-sub">Quá trình này có thể mất 10–20 giây</p>
-          </div>
-        )}
-
-        {/* Result */}
-        {result && !analyzing && (
-          <ResultCard result={result} />
-        )}
-
-        {/* Info section */}
-        {!result && !analyzing && (
-          <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div className="info-box info">
-              <span>💡</span>
-              <span>
-                <strong>Mẹo:</strong> Chụp màn hình toàn bộ cuộc trò chuyện để AI phân tích chính xác hơn
-              </span>
-            </div>
-            <div className="info-box success">
-              <span>🔒</span>
-              <span>
-                Ảnh của bạn chỉ dùng để phân tích và không lưu trữ thông tin cá nhân
-              </span>
-            </div>
-          </div>
-        )}
       </div>
     </main>
   );

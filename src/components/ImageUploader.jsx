@@ -1,13 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
-/**
- * Nén ảnh bằng canvas API
- * @param {File} file
- * @returns {Promise<Blob>}
- */
 export async function compressImage(file) {
   const MAX_WIDTH = 1920;
-  const QUALITY = 0.8;
+  const QUALITY = 0.82;
 
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -17,7 +12,6 @@ export async function compressImage(file) {
       URL.revokeObjectURL(url);
 
       let { width, height } = img;
-
       if (width > MAX_WIDTH) {
         height = Math.round((height * MAX_WIDTH) / width);
         width = MAX_WIDTH;
@@ -52,170 +46,232 @@ export async function compressImage(file) {
 const MAX_FILES = 5;
 const MAX_SIZE_MB = 10;
 
-const COMMON_RATIOS = [
-  9/16, 16/9, 16/10, 10/16, 4/3, 3/4, 3/2, 2/3,
-  19.5/9, 9/19.5, 18/9, 9/18, 20/9, 9/20, 21/9, 9/21,
-  19/9, 9/19
-];
-const TOLERANCE = 0.08;
-
-function isValidScreenRatio(width, height) {
-  const ratio = width / height;
-  return COMMON_RATIOS.some(r => Math.abs(ratio - r) <= TOLERANCE);
-}
-
-function getImageDimensions(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: img.width, height: img.height });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Không thể tải ảnh để lấy kích thước'));
-    };
-    img.src = url;
-  });
-}
-
-/**
- * ImageUploader
- * Props:
- *   files: { file: File, preview: string, compressed: Blob }[]
- *   onChange: (newFiles) => void
- */
 export default function ImageUploader({ files = [], onChange }) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   const processFiles = async (incoming) => {
     setError('');
     const remaining = MAX_FILES - files.length;
     if (remaining <= 0) {
-      setError(`Chỉ được tải tối đa ${MAX_FILES} ảnh.`);
+      setError(`Chỉ được tải tối đa ${MAX_FILES} ảnh cho mỗi phiên phân tích.`);
       return;
     }
 
-    const candidates = Array.from(incoming).slice(0, remaining);
-    
-    // Ràng buộc định dạng ảnh: jpg, jpeg, png
-    const formatValid = candidates.filter(f => {
-      const isFormatOk = ['image/jpeg', 'image/png', 'image/jpg'].includes(f.type) || 
-                         /\.(jpe?g|png)$/i.test(f.name);
-      if (!isFormatOk) {
-        setError('Có vẻ ảnh bạn tải lên không phải là ảnh chụp tin nhắn');
-        return false;
-      }
-      if (f.size > MAX_SIZE_MB * 1024 * 1024) {
-        setError(`Ảnh "${f.name}" vượt quá ${MAX_SIZE_MB}MB.`);
-        return false;
-      }
-      return true;
-    });
+    const toProcess = Array.from(incoming).slice(0, remaining);
+    setProcessing(true);
 
-    if (formatValid.length === 0) return;
-
-    const processed = [];
-    for (const f of formatValid) {
-      try {
-        const dimensions = await getImageDimensions(f);
-        if (!isValidScreenRatio(dimensions.width, dimensions.height)) {
-          setError('Có vẻ ảnh bạn tải lên không phải là ảnh chụp tin nhắn');
+    try {
+      const newItems = [];
+      for (const file of toProcess) {
+        if (!file.type.startsWith('image/')) {
+          setError(`Tệp "${file.name}" không phải là ảnh hợp lệ.`);
+          continue;
+        }
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+          setError(`Tệp "${file.name}" vượt quá ${MAX_SIZE_MB}MB.`);
           continue;
         }
 
-        const compressed = await compressImage(f);
-        const preview = URL.createObjectURL(f);
-        processed.push({ file: f, preview, compressed });
-      } catch (err) {
-        setError(`Lỗi khi xử lý ảnh "${f.name}": ${err.message}`);
+        const preview = URL.createObjectURL(file);
+        const compressed = await compressImage(file);
+        newItems.push({ file, preview, compressed });
       }
-    }
 
-    if (processed.length > 0) {
-      onChange([...files, ...processed]);
+      if (newItems.length > 0) {
+        onChange([...files, ...newItems]);
+      }
+    } catch (err) {
+      setError('Đã xảy ra lỗi khi xử lý ảnh: ' + err.message);
+    } finally {
+      setProcessing(false);
     }
-  };
-
-  const handleInput = (e) => {
-    if (e.target.files?.length) processFiles(e.target.files);
-    e.target.value = '';
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    if (e.dataTransfer.files?.length) processFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files?.length) {
+      processFiles(e.dataTransfer.files);
+    }
   };
 
-  const handleRemove = (idx) => {
-    const updated = files.filter((_, i) => i !== idx);
-    URL.revokeObjectURL(files[idx].preview);
+  const handleRemove = (index) => {
+    const item = files[index];
+    if (item?.preview) URL.revokeObjectURL(item.preview);
+    const updated = files.filter((_, i) => i !== index);
     onChange(updated);
   };
 
+  const handlePaste = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      const imageBlobs = [];
+      for (const item of clipboardItems) {
+        for (const type of item.types) {
+          if (type.startsWith('image/')) {
+            const blob = await item.getType(type);
+            const file = new File([blob], `paste_${Date.now()}.png`, { type });
+            imageBlobs.push(file);
+          }
+        }
+      }
+      if (imageBlobs.length > 0) {
+        processFiles(imageBlobs);
+      } else {
+        setError('Không tìm thấy ảnh nào trong bộ nhớ tạm (Clipboard). Hãy chụp màn hình trước.');
+      }
+    } catch (err) {
+      setError('Trình duyệt chưa cấp quyền đọc Clipboard. Bạn có thể nhấn Ctrl+V trực tiếp trên trang.');
+    }
+  };
+
+  // Listen to global Ctrl+V paste
+  useEffect(() => {
+    const handleGlobalPaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const pastedFiles = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) pastedFiles.push(file);
+        }
+      }
+      if (pastedFiles.length > 0) {
+        processFiles(pastedFiles);
+      }
+    };
+    window.addEventListener('paste', handleGlobalPaste);
+    return () => window.removeEventListener('paste', handleGlobalPaste);
+  }, [files]);
+
   return (
-    <div>
-      {/* Drop zone */}
+    <div className="flex flex-col gap-space-sm">
+      {/* Upload Zone */}
       <div
-        className={`uploader-zone ${dragOver ? 'drag-over' : ''}`}
-        onClick={() => inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && inputRef.current?.click()}
-        aria-label="Tải ảnh lên"
+        className={`relative bg-surface-container rounded-xl p-space-md flex flex-col sm:flex-row gap-space-md items-center border transition-all ${
+          dragOver
+            ? 'border-primary bg-primary-container/10 ring-2 ring-primary/40'
+            : 'border-white/5 hover:border-white/10'
+        }`}
       >
-        <span className="uploader-icon">📷</span>
-        <p className="uploader-text">Nhấn để chọn ảnh hoặc kéo thả vào đây</p>
-        <p className="uploader-sub">Hỗ trợ tối đa 5 ảnh chụp màn hình</p>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png, image/jpeg, image/webp"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files) processFiles(e.target.files);
+            e.target.value = '';
+          }}
+        />
+
+        {/* Upload Action Area */}
+        <div className="w-full flex flex-col items-center text-center justify-center py-space-sm px-space-xs">
+          <div className="w-14 h-14 rounded-full bg-primary-container/20 border border-primary/30 text-primary flex items-center justify-center mb-space-xs">
+            <span className="material-symbols-outlined text-[32px]">
+              {processing ? 'hourglass_top' : 'cloud_upload'}
+            </span>
+          </div>
+
+          <div className="font-title-md text-title-md text-on-surface mb-space-2xs font-semibold">
+            Kéo & thả ảnh chụp màn hình vào đây
+          </div>
+
+          <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-sm max-w-md">
+            Hỗ trợ định dạng JPG, PNG, WEBP lên đến 10MB (tối đa {MAX_FILES} ảnh). Hệ thống tự động khử dữ liệu nhạy cảm cá nhân.
+          </p>
+
+          <div className="flex flex-wrap gap-space-xs justify-center">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="px-space-sm py-space-xs bg-surface-bright hover:bg-surface-container-highest text-on-surface font-title-md text-title-md rounded-lg shadow-sm transition-colors flex items-center gap-space-2xs border border-white/10"
+            >
+              <span className="material-symbols-outlined text-[18px] text-primary">add_photo_alternate</span>
+              <span>Chọn ảnh từ máy</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePaste}
+              className="px-space-sm py-space-xs bg-surface-container-high hover:bg-surface-container-highest text-primary font-title-md text-title-md rounded-lg transition-colors flex items-center gap-space-2xs border border-primary/20"
+            >
+              <span className="material-symbols-outlined text-[18px]">content_paste</span>
+              <span>Dán từ bộ nhớ</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Hidden input */}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        capture="environment"
-        style={{ display: 'none' }}
-        onChange={handleInput}
-      />
-
-      {/* Error */}
+      {/* Error message */}
       {error && (
-        <p style={{ color: 'var(--danger)', fontSize: '0.875rem', marginTop: 8 }}>
-          ⚠️ {error}
-        </p>
-      )}
-
-      {/* Preview grid */}
-      {files.length > 0 && (
-        <div className="uploader-preview-grid">
-          {files.map((item, idx) => (
-            <div key={idx} className="preview-item">
-              <img src={item.preview} alt={`Ảnh ${idx + 1}`} />
-              <button
-                className="preview-remove"
-                onClick={(e) => { e.stopPropagation(); handleRemove(idx); }}
-                aria-label="Xóa ảnh"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+        <div className="flex items-center gap-2 p-3 bg-error-container/20 border border-error/30 rounded-xl text-error text-body-sm">
+          <span className="material-symbols-outlined text-[18px]">error</span>
+          <span>{error}</span>
         </div>
       )}
 
+      {/* Previews List */}
       {files.length > 0 && (
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 8 }}>
-          Đã chọn {files.length}/{MAX_FILES} ảnh
-        </p>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between text-xs text-on-surface-variant px-1 font-label-badge">
+            <span>ẢNH ĐÃ CHỌN ({files.length}/{MAX_FILES})</span>
+            <button
+              type="button"
+              onClick={() => {
+                files.forEach((f) => f.preview && URL.revokeObjectURL(f.preview));
+                onChange([]);
+              }}
+              className="text-error hover:underline"
+            >
+              Xóa tất cả
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {files.map((item, idx) => (
+              <div
+                key={idx}
+                className="relative bg-surface-container-low border border-white/10 rounded-xl overflow-hidden group p-2 flex flex-col gap-2"
+              >
+                <div className="w-full h-32 bg-surface-container-lowest rounded-lg overflow-hidden flex items-center justify-center">
+                  <img
+                    src={item.preview}
+                    alt={`Preview ${idx + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] font-label-caption text-on-surface-variant truncate">
+                  <span className="truncate max-w-[80px]" title={item.file.name}>
+                    {item.file.name}
+                  </span>
+                  <span className="text-primary font-bold">
+                    {(item.file.size / 1024).toFixed(0)} KB
+                  </span>
+                </div>
+
+                {/* Remove button */}
+                <button
+                  type="button"
+                  onClick={() => handleRemove(idx)}
+                  className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#000000]/80 hover:bg-error text-white flex items-center justify-center transition-colors"
+                  title="Xóa ảnh này"
+                >
+                  <span className="material-symbols-outlined text-[14px]">close</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

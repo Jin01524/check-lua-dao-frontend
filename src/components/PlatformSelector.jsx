@@ -1,23 +1,13 @@
 import { useState } from 'react';
-import smsIcon from '../assets/sms.png';
-import zaloIcon from '../assets/Icon_of_Zalo.png';
-import fbIcon from '../assets/Facebook_f_logo_(2019).png';
-import telegramIcon from '../assets/Telegram_2019_Logo.png';
 
 const PLATFORMS = [
-  { id: 'sms', icon: smsIcon, emoji: '📱', label: 'SMS' },
-  { id: 'zalo', icon: zaloIcon, emoji: '💬', label: 'Zalo' },
-  { id: 'facebook', icon: fbIcon, emoji: '📘', label: 'Facebook' },
-  { id: 'telegram', icon: telegramIcon, emoji: '✈️', label: 'Telegram' },
-  { id: 'other', emoji: '✏️', label: 'Khác' },
+  { id: 'sms', label: 'SMS / Brand', icon: 'sms', iconColor: 'text-primary' },
+  { id: 'facebook', label: 'Facebook', icon: 'public', iconColor: 'text-[#1877F2]' },
+  { id: 'telegram', label: 'Telegram', icon: 'send', iconColor: 'text-[#229ED9]' },
+  { id: 'zalo', label: 'Zalo', icon: 'forum', iconColor: 'text-[#0068FF]' },
+  { id: 'other', label: 'Khác', icon: 'devices_other', iconColor: 'text-secondary' },
 ];
 
-/**
- * PlatformSelector
- * Props:
- *   value: string (platform id hoặc tên tự nhập nếu "other")
- *   onChange: (value: string) => void
- */
 export default function PlatformSelector({ value, onChange }) {
   const [customName, setCustomName] = useState('');
 
@@ -27,105 +17,83 @@ export default function PlatformSelector({ value, onChange }) {
 
   const handleSelect = (id) => {
     if (id === 'other') {
-      onChange('other');
+      onChange(customName || 'other');
     } else {
       onChange(id);
     }
   };
 
   const handleCustomChange = (e) => {
-    setCustomName(e.target.value);
-    onChange(e.target.value || 'other');
+    const val = e.target.value;
+    setCustomName(val);
+    onChange(val || 'other');
   };
 
-  const getSelectedId = () => {
-    const match = PLATFORMS.find(p => p.id === value);
-    if (match) return match.id;
-    if (isOtherSelected) return 'other';
-    return null;
-  };
-
-  const selectedId = getSelectedId();
-  const [isOpen, setIsOpen] = useState(false);
-  const selectedPlatform = PLATFORMS.find(p => p.id === selectedId);
+  const selectedId = PLATFORMS.find(p => p.id === value)?.id || (isOtherSelected ? 'other' : '');
 
   return (
-    <div>
-      {/* Custom Select Box for Mobile */}
-      <div className="platform-mobile-select-custom">
-        <button
-          type="button"
-          className="custom-select-trigger"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {selectedPlatform ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {selectedPlatform.icon ? (
-                <img src={selectedPlatform.icon} alt={selectedPlatform.label} className="platform-icon-sm" />
-              ) : (
-                <span className="platform-emoji-sm">{selectedPlatform.emoji}</span>
-              )}
-              <span>{selectedPlatform.label}</span>
-            </div>
-          ) : (
-            <span style={{ color: 'var(--text-muted)' }}>-- Chọn ứng dụng nhận tin nhắn --</span>
-          )}
-          <span className="arrow" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
-        </button>
-
-        {isOpen && (
-          <ul className="custom-select-options">
-            {PLATFORMS.map((platform) => (
-              <li key={platform.id}>
-                <button
-                  type="button"
-                  className={`custom-option-item ${selectedId === platform.id ? 'selected' : ''}`}
-                  onClick={() => {
-                    handleSelect(platform.id);
-                    setIsOpen(false);
-                  }}
-                >
-                  {platform.icon ? (
-                    <img src={platform.icon} alt={platform.label} className="platform-icon-sm" />
-                  ) : (
-                    <span className="platform-emoji-sm">{platform.emoji}</span>
-                  )}
-                  <span>{platform.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+    <div className="flex flex-col gap-space-xs">
+      <div className="flex items-center justify-between">
+        <label className="font-title-md text-title-md text-on-surface font-medium">
+          Nền tảng bạn nhận tin nhắn này:
+        </label>
+        {selectedId && (
+          <span className="font-label-badge text-[11px] text-primary bg-primary-container/20 px-2 py-0.5 rounded border border-primary/30 uppercase">
+            Đã chọn: {selectedId.toUpperCase()}
+          </span>
         )}
       </div>
 
-      {/* Grid for Desktop */}
-      <div className="platform-grid">
-        {PLATFORMS.map((platform) => (
-          <button
-            key={platform.id}
-            type="button"
-            className={`platform-card ${selectedId === platform.id ? 'selected' : ''}`}
-            onClick={() => handleSelect(platform.id)}
-          >
-            {platform.icon ? (
-              <img src={platform.icon} alt={platform.label} className="platform-icon" />
-            ) : (
-              <span className="platform-emoji">{platform.emoji}</span>
-            )}
-            <span>{platform.label}</span>
-          </button>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-space-xs" id="platform-selector">
+        {PLATFORMS.map((platform) => {
+          const isSelected = selectedId === platform.id;
+          return (
+            <div
+              key={platform.id}
+              onClick={() => handleSelect(platform.id)}
+              className={`cursor-pointer relative flex flex-col items-center gap-space-2xs p-space-xs rounded-xl transition-all border ${
+                isSelected
+                  ? 'bg-surface-container-high border-primary shadow-[0_0_12px_rgba(180,197,255,0.2)] ring-1 ring-primary'
+                  : 'bg-surface-container border-white/5 hover:bg-surface-container-high hover:border-white/10'
+              }`}
+            >
+              {/* Radio Indicator */}
+              <div className="w-full flex justify-end">
+                <span
+                  className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-colors ${
+                    isSelected ? 'bg-primary' : 'bg-surface-container-lowest border border-white/20'
+                  }`}
+                >
+                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-on-primary"></span>}
+                </span>
+              </div>
+
+              {/* Icon */}
+              <span className={`material-symbols-outlined text-[26px] ${platform.iconColor}`}>
+                {platform.icon}
+              </span>
+
+              {/* Label */}
+              <span className="font-label-caption text-label-caption text-on-surface font-medium">
+                {platform.label}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
-      {isOtherSelected && (
-        <input
-          type="text"
-          className="platform-other-input"
-          placeholder="Nhập tên ứng dụng / kênh nhận tin..."
-          value={customName}
-          onChange={handleCustomChange}
-          autoFocus
-        />
+      {/* Input if 'other' is selected */}
+      {selectedId === 'other' && (
+        <div className="mt-space-2xs animate-fadeIn">
+          <input
+            type="text"
+            className="w-full bg-surface-container text-on-surface text-body-sm px-space-sm py-space-xs rounded-xl border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-on-surface-variant/50"
+            placeholder="Nhập tên nền tảng (Ví dụ: Viber, WhatsApp, Gmail, TikTok...)"
+            value={customName}
+            onChange={handleCustomChange}
+            autoFocus
+          />
+        </div>
       )}
     </div>
   );
