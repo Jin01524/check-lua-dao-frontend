@@ -15,15 +15,9 @@ export default function Footer() {
                 Check<span className="text-primary">LuaDao</span>
               </span>
             </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
               Hệ sinh thái AI bảo vệ công dân Việt Nam trước các chiến dịch lừa đảo tài chính, mạo danh cơ quan tư pháp và mã độc trực tuyến.
             </p>
-            <div className="flex items-center gap-space-xs text-tertiary">
-              <span className="material-symbols-outlined text-[18px]">verified_user</span>
-              <span className="font-label-caption text-label-caption text-on-surface-variant">
-                Chứng nhận An toàn Không gian mạng Quốc gia
-              </span>
-            </div>
           </div>
 
           {/* Col 2: Hotline */}
@@ -65,16 +59,12 @@ export default function Footer() {
             </div>
             <ul className="space-y-space-xs font-body-sm text-body-sm text-on-surface-variant">
               <li className="flex items-center gap-space-2xs hover:text-on-surface transition-colors cursor-pointer">
-                <span className="material-symbols-outlined text-[16px] text-primary">policy</span>
-                <span>Cục An ninh mạng A05 & AIS</span>
-              </li>
-              <li className="flex items-center gap-space-2xs hover:text-on-surface transition-colors cursor-pointer">
                 <span className="material-symbols-outlined text-[16px] text-primary">school</span>
                 <span>Đại học Kiến trúc Đà Nẵng</span>
               </li>
               <li className="flex items-center gap-space-2xs hover:text-on-surface transition-colors cursor-pointer">
                 <span className="material-symbols-outlined text-[16px] text-primary">person</span>
-                <span>Tác giả: Võ Ngọc Bình</span>
+                <span>Tác giả: Võ Ngọc Bình, Trần Mỹ Nhung</span>
               </li>
             </ul>
           </div>

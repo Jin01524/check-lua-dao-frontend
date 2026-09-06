@@ -335,7 +335,7 @@ export default function HomePage() {
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-xs text-on-surface-variant border border-white/5 mt-2">
                   <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
-                  <span>Mô hình Gemini Vision & Threat Intelligence trực tuyến</span>
+                  <span>Mô hình Gemini</span>
                 </div>
               </div>
             )}
