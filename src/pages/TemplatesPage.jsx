@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
-import { normalizeThreatScore, getThreatLevel } from '../utils/threatUtils';
+import { normalizeThreatScore, getConsistentThreatScore, getThreatLevel } from '../utils/threatUtils';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
@@ -56,7 +56,7 @@ export default function TemplatesPage() {
         <section className="mb-space-xl">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-space-lg">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs bg-surface-container-high rounded-full mb-space-xs border border-white/5">
+              <div className="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs bg-surface-container-high rounded-none mb-space-xs border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-error animate-pulse"></span>
                 <span className="font-label-badge text-label-badge text-error uppercase">
                   CƠ SỞ DỮ LIỆU ĐE DỌA QUỐC GIA
@@ -75,16 +75,16 @@ export default function TemplatesPage() {
             </div>
 
             {/* Metric Pulse Cards */}
-            <div className="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-xl border border-white/5 self-start lg:self-auto">
-              <div className="px-space-sm py-space-2xs bg-surface-container rounded-lg">
+            <div className="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-none border border-white/5 self-start lg:self-auto">
+              <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Đã xác thực</span>
                 <span className="font-headline-sm text-headline-sm text-primary font-bold">{templates.length > 0 ? `${templates.length}+` : '12,840+'}</span>
               </div>
-              <div className="px-space-sm py-space-2xs bg-surface-container rounded-lg">
+              <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Chặn tức thời</span>
                 <span className="font-headline-sm text-headline-sm text-error font-bold">99.4%</span>
               </div>
-              <div className="px-space-sm py-space-2xs bg-surface-container rounded-lg">
+              <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Trạng thái</span>
                 <span className="font-label-badge text-label-badge text-[#10b981] font-bold block mt-1">THỜI GIAN THỰC</span>
               </div>
@@ -92,7 +92,7 @@ export default function TemplatesPage() {
           </div>
 
           {/* Smart Filter Control Deck */}
-          <div className="bg-surface-container-low p-space-md rounded-xl shadow-md border border-white/5 space-y-space-md">
+          <div className="bg-surface-container-low p-space-md rounded-none shadow-md border border-white/5 space-y-space-md">
             {/* Search Bar */}
             <div className="relative w-full">
               <span className="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">
@@ -103,7 +103,7 @@ export default function TemplatesPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Tìm kiếm theo từ khóa lừa đảo, tên ngân hàng, cơ quan mạo danh, đường dẫn độc hại..."
-                className="w-full bg-surface-container text-on-surface text-body-md pl-12 pr-4 py-3 rounded-xl border border-white/5 focus:outline-none focus:ring-1 focus:ring-primary placeholder-on-surface-variant/40"
+                className="w-full bg-surface-container text-on-surface text-body-md pl-12 pr-4 py-3 rounded-none border border-white/5 focus:outline-none focus:ring-1 focus:ring-primary placeholder-on-surface-variant/40"
               />
               {search && (
                 <button
@@ -128,7 +128,7 @@ export default function TemplatesPage() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPlatform(p.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-title-md transition-colors ${
+                  className={`px-3 py-1.5 rounded-none text-xs font-title-md transition-colors ${
                     selectedPlatform === p.id
                       ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
                       : 'bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
@@ -145,13 +145,13 @@ export default function TemplatesPage() {
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-surface-container-low rounded-xl p-space-lg border border-white/5 animate-pulse min-h-[200px] flex flex-col justify-between">
+              <div key={i} className="bg-surface-container-low rounded-none p-space-lg border border-white/5 animate-pulse min-h-[200px] flex flex-col justify-between">
                 <div className="flex justify-between items-center">
-                  <div className="w-24 h-5 bg-surface-container-high rounded"></div>
-                  <div className="w-16 h-4 bg-surface-container-high rounded"></div>
+                  <div className="w-24 h-5 bg-surface-container-high rounded-none"></div>
+                  <div className="w-16 h-4 bg-surface-container-high rounded-none"></div>
                 </div>
-                <div className="w-full h-8 bg-surface-container-high rounded my-3"></div>
-                <div className="w-32 h-4 bg-surface-container-high rounded"></div>
+                <div className="w-full h-8 bg-surface-container-high rounded-none my-3"></div>
+                <div className="w-32 h-4 bg-surface-container-high rounded-none"></div>
               </div>
             ))}
           </div>
@@ -159,7 +159,7 @@ export default function TemplatesPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="flex items-center gap-2 p-4 bg-error-container/20 border border-error/40 rounded-xl text-error mb-6">
+          <div className="flex items-center gap-2 p-4 bg-error-container/20 border border-error/40 rounded-none text-error mb-6">
             <span className="material-symbols-outlined">error</span>
             <span>{error}</span>
           </div>
@@ -167,7 +167,7 @@ export default function TemplatesPage() {
 
         {/* Empty State */}
         {!loading && !error && filtered.length === 0 && (
-          <div className="bg-surface-container-low rounded-xl p-space-2xl border border-white/5 text-center flex flex-col items-center justify-center min-h-[300px]">
+          <div className="bg-surface-container-low rounded-none p-space-2xl border border-white/5 text-center flex flex-col items-center justify-center min-h-[300px]">
             <span className="material-symbols-outlined text-[48px] text-on-surface-variant/40 mb-3">
               folder_off
             </span>
@@ -185,20 +185,20 @@ export default function TemplatesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
             {filtered.map((tpl) => {
               const id = tpl.id || tpl._id;
-              const danger = normalizeThreatScore(tpl.confidence_score ?? tpl.danger_level ?? tpl.risk_score, 92);
+              const danger = getConsistentThreatScore(tpl);
               const threat = getThreatLevel(danger);
 
               return (
                 <article
                   key={id}
-                  onClick={() => navigate(`/templates/${id}`)}
-                  className="bg-surface-container-low hover:bg-surface-container rounded-xl p-space-lg border border-white/5 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-lg flex flex-col justify-between group"
+                  onClick={() => navigate(`/templates/${id}`, { state: { template: tpl, danger } })}
+                  className="bg-surface-container-low hover:bg-surface-container rounded-none p-space-lg border border-white/5 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-lg flex flex-col justify-between group"
                 >
                   <div>
                     {/* Top Row: Severity & Case Code */}
                     <div className="flex items-center justify-between mb-space-xs">
                       <span
-                        className={`font-label-badge text-label-badge px-2 py-0.5 rounded font-bold border ${threat.badgeClass}`}
+                        className={`font-label-badge text-label-badge px-2 py-0.5 rounded-none font-bold border ${threat.badgeClass}`}
                       >
                         {threat.level} - {danger}%
                       </span>

@@ -38,8 +38,8 @@ export default function ResultCard({ result }) {
 
   if (isChatScreenshot === false) {
     return (
-      <div className="bg-surface-container rounded-xl p-space-lg shadow-xl flex flex-col gap-space-md border border-white/5">
-        <div className="flex items-center gap-space-xs p-space-md bg-warning/15 border border-warning/30 rounded-xl text-warning">
+      <div className="bg-surface-container rounded-none p-space-lg shadow-xl flex flex-col gap-space-md border border-white/5">
+        <div className="flex items-center gap-space-xs p-space-md bg-warning/15 border border-warning/30 rounded-none text-warning">
           <span className="material-symbols-outlined text-[28px]">image_not_supported</span>
           <div>
             <div className="font-title-md text-title-md font-bold">
@@ -58,7 +58,7 @@ export default function ResultCard({ result }) {
   const isMediumRisk = isScam && dangerLevel < 70;
 
   return (
-    <div className="bg-surface-container rounded-xl p-space-lg shadow-xl flex flex-col gap-space-md border border-white/10 animate-fadeIn">
+    <div className="bg-surface-container rounded-none p-space-lg shadow-xl flex flex-col gap-space-md border border-white/10 animate-fadeIn">
       {/* Risk Header Badge */}
       <div className="flex items-center justify-between pb-space-xs border-b border-white/5">
         <div className="flex items-center gap-space-2xs">
@@ -82,7 +82,7 @@ export default function ResultCard({ result }) {
 
       {/* Risk Status Banner */}
       <div
-        className={`p-space-md rounded-xl shadow-md flex flex-col gap-space-2xs border ${
+        className={`p-space-md rounded-none shadow-md flex flex-col gap-space-2xs border ${
           isScam
             ? 'bg-error-container/40 border-error/30 text-on-error-container'
             : 'bg-[#10b981]/15 border-[#10b981]/30 text-white'
@@ -112,9 +112,9 @@ export default function ResultCard({ result }) {
         </p>
 
         {/* Progress gauge bar */}
-        <div className="w-full bg-surface-container-lowest h-2 rounded-full overflow-hidden mt-1.5">
+        <div className="w-full bg-surface-container-lowest h-2 rounded-none overflow-hidden mt-1.5">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ${
+            className={`h-full rounded-none transition-all duration-1000 ${
               isHighRisk ? 'bg-error' : isMediumRisk ? 'bg-warning' : 'bg-[#10b981]'
             }`}
             style={{ width: `${Math.max(dangerLevel, 10)}%` }}
@@ -124,7 +124,7 @@ export default function ResultCard({ result }) {
 
       {/* Forensic Summary */}
       {summary && (
-        <div className="p-space-sm bg-surface-container-low rounded-xl border border-white/5">
+        <div className="p-space-sm bg-surface-container-low rounded-none border border-white/5">
           <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-tertiary uppercase mb-1">
             <span className="material-symbols-outlined text-[16px]">psychology</span>
             <span>Đánh giá từ AI DeepScan</span>
@@ -146,7 +146,7 @@ export default function ResultCard({ result }) {
             {warningPoints.map((point, idx) => (
               <div
                 key={idx}
-                className="flex items-start gap-2.5 p-2.5 bg-surface-container-high/60 rounded-lg border border-error/20 text-on-surface"
+                className="flex items-start gap-2.5 p-2.5 bg-surface-container-high/60 rounded-none border border-error/20 text-on-surface"
               >
                 <span className="material-symbols-outlined text-error text-[18px] flex-shrink-0 mt-0.5">
                   report
@@ -167,7 +167,7 @@ export default function ResultCard({ result }) {
             <span className="material-symbols-outlined text-[16px]">chat</span>
             <span>Đoạn trích xuất từ tin nhắn</span>
           </div>
-          <div className="max-h-48 overflow-y-auto space-y-1.5 p-2 bg-surface-container-lowest rounded-lg">
+          <div className="max-h-48 overflow-y-auto space-y-1.5 p-2 bg-surface-container-lowest rounded-none">
             {messages.map((msg, i) => (
               <ChatBubble key={i} sender={msg.sender} text={msg.text} />
             ))}
@@ -176,7 +176,7 @@ export default function ResultCard({ result }) {
       )}
 
       {/* Safety recommendations */}
-      <div className="p-space-sm bg-surface-container-low rounded-xl border border-white/5">
+      <div className="p-space-sm bg-surface-container-low rounded-none border border-white/5">
         <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-primary uppercase mb-1">
           <span className="material-symbols-outlined text-[16px]">health_and_safety</span>
           <span>Khuyến nghị an toàn tức thì</span>
@@ -193,7 +193,7 @@ export default function ResultCard({ result }) {
         <button
           type="button"
           onClick={handleShare}
-          className="flex-1 py-2 px-3 bg-surface-bright hover:bg-surface-container-highest text-on-surface rounded-lg font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-white/10"
+          className="flex-1 py-2 px-3 bg-surface-bright hover:bg-surface-container-highest text-on-surface rounded-none font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-white/10"
         >
           <span className="material-symbols-outlined text-[16px]">share</span>
           <span>{copied ? 'Đã sao chép cảnh báo!' : 'Chia sẻ cảnh báo'}</span>
@@ -201,7 +201,7 @@ export default function ResultCard({ result }) {
 
         <a
           href="tel:18001031"
-          className="py-2 px-3 bg-error-container hover:bg-error text-white rounded-lg font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+          className="py-2 px-3 bg-error-container hover:bg-error text-white rounded-none font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
           title="Tổng đài An toàn mạng quốc gia"
         >
           <span className="material-symbols-outlined text-[16px]">e911_emergency</span>

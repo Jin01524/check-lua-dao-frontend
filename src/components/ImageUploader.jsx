@@ -155,7 +155,7 @@ export default function ImageUploader({ files = [], onChange }) {
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        className={`relative bg-surface-container rounded-xl p-space-md flex flex-col sm:flex-row gap-space-md items-center border transition-all ${
+        className={`relative bg-surface-container rounded-none p-space-md flex flex-col sm:flex-row gap-space-md items-center border transition-all ${
           dragOver
             ? 'border-primary bg-primary-container/10 ring-2 ring-primary/40'
             : 'border-white/5 hover:border-white/10'
@@ -240,9 +240,9 @@ export default function ImageUploader({ files = [], onChange }) {
             {files.map((item, idx) => (
               <div
                 key={idx}
-                className="relative bg-surface-container-low border border-white/10 rounded-xl overflow-hidden group p-2 flex flex-col gap-2"
+                className="relative bg-surface-container-low border border-white/10 rounded-none overflow-hidden group p-2 flex flex-col gap-2"
               >
-                <div className="w-full h-32 bg-surface-container-lowest rounded-lg overflow-hidden flex items-center justify-center">
+                <div className="w-full h-32 bg-surface-container-lowest rounded-none overflow-hidden flex items-center justify-center">
                   <img
                     src={item.preview}
                     alt={`Preview ${idx + 1}`}

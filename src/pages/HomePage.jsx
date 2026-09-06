@@ -148,7 +148,7 @@ export default function HomePage() {
 
           {/* Quick Live Telemetry Stat Pills */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-sm w-full max-w-3xl">
-            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-none shadow-sm flex flex-col items-center justify-center text-center">
               <span className="font-label-badge text-label-badge text-tertiary uppercase">Tổng tin nhắn quét</span>
               <span className="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">
                 {stats.totalScans.toLocaleString('vi-VN')}
@@ -156,7 +156,7 @@ export default function HomePage() {
               <span className="font-label-caption text-label-caption text-secondary">Số liệu thực tế hệ thống</span>
             </div>
 
-            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-none shadow-sm flex flex-col items-center justify-center text-center">
               <span className="font-label-badge text-label-badge text-primary uppercase line-clamp-1">
                 Mức độ cảnh báo cao nhất được ghi nhận
               </span>
@@ -166,7 +166,7 @@ export default function HomePage() {
               <span className="font-label-caption text-label-caption text-secondary">Chỉ số rủi ro nguy cấp nhất</span>
             </div>
 
-            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-space-sm bg-surface-container-low border border-white/5 rounded-none shadow-sm flex flex-col items-center justify-center text-center">
               <span className="font-label-badge text-label-badge text-error uppercase">Số tin nhắn được cảnh báo</span>
               <span className="font-headline-md text-headline-md text-error font-bold tracking-tight">
                 {stats.warnedScans.toLocaleString('vi-VN')}
@@ -180,7 +180,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
           {/* LEFT INPUT SUITE (7 Cols) */}
           <div className="lg:col-span-7 flex flex-col gap-space-lg">
-            <div className="bg-surface-container-low rounded-xl p-space-lg shadow-md border border-white/5 flex flex-col gap-space-lg">
+            <div className="bg-surface-container-low rounded-none p-space-lg shadow-md border border-white/5 flex flex-col gap-space-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-space-xs">
                   <span className="material-symbols-outlined text-primary text-[24px]">document_scanner</span>
@@ -188,7 +188,7 @@ export default function HomePage() {
                     Tải Lên Mẫu Tin Nhắn
                   </span>
                 </div>
-                <span className="font-label-badge text-label-badge px-space-xs py-space-2xs bg-surface-container-highest text-primary-fixed rounded border border-primary/20">
+                <span className="font-label-badge text-label-badge px-space-xs py-space-2xs bg-surface-container-highest text-primary-fixed rounded-none border border-primary/20">
                   OCR + NLP ENGINE
                 </span>
               </div>
@@ -216,13 +216,13 @@ export default function HomePage() {
                     value={additionalText}
                     onChange={(e) => setAdditionalText(e.target.value)}
                     placeholder="Ví dụ: http://vcb-digi-bank.vip/login hoặc dán toàn bộ đoạn văn bản tin nhắn nhận được..."
-                    className="w-full bg-surface-container text-on-surface font-code-telemetry text-code-telemetry p-space-sm rounded-xl focus:outline-none focus:ring-1 focus:ring-primary border border-white/5 resize-none placeholder-on-surface-variant/40"
+                    className="w-full bg-surface-container text-on-surface font-code-telemetry text-code-telemetry p-space-sm rounded-none focus:outline-none focus:ring-1 focus:ring-primary border border-white/5 resize-none placeholder-on-surface-variant/40"
                   />
                   {additionalText && (
                     <button
                       type="button"
                       onClick={() => setAdditionalText('')}
-                      className="absolute bottom-2.5 right-2.5 text-on-surface-variant hover:text-on-surface p-1 rounded bg-surface-container-high text-xs"
+                      className="absolute bottom-2.5 right-2.5 text-on-surface-variant hover:text-on-surface p-1 rounded-none bg-surface-container-high text-xs"
                       title="Xóa nội dung"
                     >
                       <span className="material-symbols-outlined text-[16px]">clear</span>
@@ -233,7 +233,7 @@ export default function HomePage() {
 
               {/* Error Box */}
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-error-container/20 border border-error/40 rounded-xl text-error text-body-sm">
+                <div className="flex items-center gap-2 p-3 bg-error-container/20 border border-error/40 rounded-none text-error text-body-sm">
                   <span className="material-symbols-outlined text-[20px]">warning</span>
                   <span>{error}</span>
                 </div>
@@ -245,7 +245,7 @@ export default function HomePage() {
                   type="button"
                   disabled={analyzing}
                   onClick={handleSubmit}
-                  className={`w-full py-space-sm px-space-md font-title-md text-title-md rounded-xl transition-all flex items-center justify-center gap-space-xs group ${
+                  className={`w-full py-space-sm px-space-md font-title-md text-title-md rounded-none transition-all flex items-center justify-center gap-space-xs group ${
                     analyzing
                       ? 'bg-primary-container/50 text-white cursor-wait'
                       : 'bg-primary-container hover:bg-inverse-primary text-on-primary-container shadow-[0_0_24px_-4px_rgba(37,99,235,0.65)] active:scale-[0.99]'
@@ -272,8 +272,8 @@ export default function HomePage() {
             </div>
 
             {/* Educational Visual Highlight */}
-            <div className="bg-surface-container-low rounded-xl p-space-md shadow-sm border border-white/5 flex flex-col sm:flex-row items-center gap-space-md">
-              <div className="w-12 h-12 rounded-xl bg-tertiary/10 border border-tertiary/30 text-tertiary flex items-center justify-center flex-shrink-0">
+            <div className="bg-surface-container-low rounded-none p-space-md shadow-sm border border-white/5 flex flex-col sm:flex-row items-center gap-space-md">
+              <div className="w-12 h-12 rounded-none bg-tertiary/10 border border-tertiary/30 text-tertiary flex items-center justify-center flex-shrink-0">
                 <span className="material-symbols-outlined text-[28px]">shield_with_heart</span>
               </div>
               <div className="flex flex-col">
@@ -292,7 +292,7 @@ export default function HomePage() {
           <div className="lg:col-span-5 flex flex-col gap-space-lg sticky top-24">
             {analyzing ? (
               /* Loading State */
-              <div className="bg-surface-container rounded-xl p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-4 min-h-[420px]">
+              <div className="bg-surface-container rounded-none p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-4 min-h-[420px]">
                 <div className="relative flex items-center justify-center">
                   <div className="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
                   <span className="material-symbols-outlined text-tertiary text-[28px] absolute inset-0 m-auto flex items-center justify-center animate-pulse">
@@ -323,8 +323,8 @@ export default function HomePage() {
               <ResultCard result={result} />
             ) : (
               /* Ready State */
-              <div className="bg-surface-container-low rounded-xl p-space-xl border border-white/5 shadow-md flex flex-col items-center justify-center text-center min-h-[380px] gap-3">
-                <div className="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary/80 mb-1 border border-white/5">
+              <div className="bg-surface-container-low rounded-none p-space-xl border border-white/5 shadow-md flex flex-col items-center justify-center text-center min-h-[380px] gap-3">
+                <div className="w-16 h-16 rounded-none bg-surface-container-high flex items-center justify-center text-primary/80 mb-1 border border-white/5">
                   <span className="material-symbols-outlined text-[36px]">radar</span>
                 </div>
                 <div className="font-headline-sm text-on-surface font-semibold">
@@ -333,7 +333,7 @@ export default function HomePage() {
                 <p className="font-body-sm text-on-surface-variant max-w-sm leading-relaxed">
                   Tải lên ảnh chụp màn hình hoặc dán nội dung tin nhắn nghi vấn ở cột bên trái, sau đó nhấn <span className="text-primary font-medium">"Kiểm tra ngay với AI"</span> để nhận báo cáo bóc tách chi tiết.
                 </p>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-xs text-on-surface-variant border border-white/5 mt-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-surface-container text-xs text-on-surface-variant border border-white/5 mt-2">
                   <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
                   <span>Mô hình Gemini</span>
                 </div>

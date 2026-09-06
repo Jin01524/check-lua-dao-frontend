@@ -38,7 +38,7 @@ export default function PlatformSelector({ value, onChange }) {
           Nền tảng bạn nhận tin nhắn này:
         </label>
         {selectedId && (
-          <span className="font-label-badge text-[11px] text-primary bg-primary-container/20 px-2 py-0.5 rounded border border-primary/30 uppercase">
+          <span className="font-label-badge text-[11px] text-primary bg-primary-container/20 px-2 py-0.5 rounded-none border border-primary/30 uppercase">
             Đã chọn: {selectedId.toUpperCase()}
           </span>
         )}
@@ -51,7 +51,7 @@ export default function PlatformSelector({ value, onChange }) {
             <div
               key={platform.id}
               onClick={() => handleSelect(platform.id)}
-              className={`cursor-pointer relative flex flex-col items-center gap-space-2xs p-space-xs rounded-xl transition-all border ${
+              className={`cursor-pointer relative flex flex-col items-center gap-space-2xs p-space-xs rounded-none transition-all border ${
                 isSelected
                   ? 'bg-surface-container-high border-primary shadow-[0_0_12px_rgba(180,197,255,0.2)] ring-1 ring-primary'
                   : 'bg-surface-container border-white/5 hover:bg-surface-container-high hover:border-white/10'
@@ -87,7 +87,7 @@ export default function PlatformSelector({ value, onChange }) {
         <div className="mt-space-2xs animate-fadeIn">
           <input
             type="text"
-            className="w-full bg-surface-container text-on-surface text-body-sm px-space-sm py-space-xs rounded-xl border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-on-surface-variant/50"
+            className="w-full bg-surface-container text-on-surface text-body-sm px-space-sm py-space-xs rounded-none border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-on-surface-variant/50"
             placeholder="Nhập tên nền tảng (Ví dụ: Viber, WhatsApp, Gmail, TikTok...)"
             value={customName}
             onChange={handleCustomChange}

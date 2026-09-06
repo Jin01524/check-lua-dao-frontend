@@ -15,6 +15,27 @@ export function normalizeThreatScore(score, fallback = 90) {
 }
 
 /**
+ * Tạo điểm rủi ro nhất quán cho mẫu tin (từ 91% - 98%) nếu database thiếu giá trị
+ * Đảm bảo ở trang danh sách và trang chi tiết LUÔN LUÔN hiển thị cùng 1 con số % chính xác
+ */
+export function getConsistentThreatScore(tpl, fallback = 90) {
+  if (!tpl) return fallback;
+  const raw = tpl.confidence_score ?? tpl.danger_level ?? tpl.risk_score;
+  if (raw !== null && raw !== undefined && raw !== '' && !isNaN(Number(raw))) {
+    return normalizeThreatScore(raw, fallback);
+  }
+
+  // Nếu không có giá trị, dùng chuỗi ID/tiêu đề để sinh số ngẫu nhiên nhưng ổn định
+  const str = String(tpl.id || tpl._id || tpl.title || 'template');
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 91 + (Math.abs(hash) % 8); // 91% - 98%
+}
+
+/**
  * Trả về thông tin mức độ cảnh báo chuẩn hóa bằng tiếng Việt
  */
 export function getThreatLevel(score, fallback = 90) {
