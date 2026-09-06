@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBubble from '../components/ChatBubble';
 import API from '../api/api';
+import { getConsistentThreatScore, getThreatLevel } from '../utils/threatUtils';
 
 // Modal xem chi tiết mẫu
 function TemplateModal({ template, onClose }) {
@@ -42,6 +43,9 @@ function TemplateModal({ template, onClose }) {
             </span>
             <span className="font-label-badge bg-error-container/20 text-error border border-error/30 px-2 py-0.5 rounded">
               {template.scam_type || 'Lừa đảo'}
+            </span>
+            <span className="font-label-badge px-2 py-0.5 rounded font-mono font-bold text-error bg-error-container/20 border border-error/30">
+              RỦI RO: {getConsistentThreatScore(template)}%
             </span>
           </div>
 
@@ -324,7 +328,7 @@ function TemplatesTab() {
               {templates.map((tpl) => {
                 const id = tpl.id || tpl._id;
                 const isApproved = tpl.is_approved === true;
-                const danger = tpl.confidence_score || tpl.danger_level || 90;
+                const danger = getConsistentThreatScore(tpl);
 
                 return (
                   <tr key={id} className="hover:bg-surface-container/50 transition-colors">
