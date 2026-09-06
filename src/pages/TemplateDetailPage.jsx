@@ -92,6 +92,7 @@ export default function TemplateDetailPage() {
         <div className="flex items-center justify-between gap-4 mb-space-lg">
           <Link
             to="/templates"
+            reloadDocument
             className="inline-flex items-center gap-1.5 text-sm font-title-md text-on-surface-variant hover:text-primary transition-colors py-1.5 px-3 rounded-none bg-surface-container-low border border-white/5"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>

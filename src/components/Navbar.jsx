@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="h-14 max-w-[1280px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Left: Brand */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2 focus:outline-none group" onClick={close}>
+          <Link to="/" reloadDocument className="flex items-center gap-2 focus:outline-none group" onClick={close}>
             <img
               src={logoImg}
               alt="CheckLuaDao Logo"
@@ -41,6 +41,7 @@ export default function Navbar() {
           <nav className="hidden lg:flex items-center gap-1">
             <Link
               to="/"
+              reloadDocument
               className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 rounded-none transition-all ${
                 isActive('/')
                   ? 'bg-primary-container text-on-primary-container shadow-sm font-semibold'
@@ -53,6 +54,7 @@ export default function Navbar() {
 
             <Link
               to="/templates"
+              reloadDocument
               className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 rounded-none transition-all ${
                 isActive('/templates')
                   ? 'bg-primary-container text-on-primary-container shadow-sm font-semibold'
@@ -66,6 +68,7 @@ export default function Navbar() {
             {isLoggedIn && (isAdmin || isModerator) && (
               <Link
                 to="/admin/dashboard"
+                reloadDocument
                 className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 rounded-none transition-all ${
                   isActive('/admin/dashboard')
                     ? 'bg-primary-container text-on-primary-container shadow-sm font-semibold'
@@ -121,7 +124,10 @@ export default function Navbar() {
                 </span>
               </div>
               <button
-                onClick={logout}
+                onClick={() => {
+                  logout();
+                  window.location.href = '/';
+                }}
                 className="text-on-surface-variant hover:text-error p-1 rounded-none transition-colors text-xs ml-1 flex items-center gap-1"
                 title="Đăng xuất"
               >
@@ -131,6 +137,7 @@ export default function Navbar() {
           ) : (
             <Link
               to="/admin/login"
+              reloadDocument
               className="px-2.5 py-1 text-xs font-medium rounded-none bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-colors flex items-center gap-1.5 border border-white/10"
             >
               <span className="material-symbols-outlined text-[15px] text-primary">lock</span>
@@ -156,6 +163,7 @@ export default function Navbar() {
         <div className="lg:hidden border-t border-white/10 bg-[#0a0e17] px-4 py-2 space-y-1 animate-fadeIn">
           <Link
             to="/"
+            reloadDocument
             onClick={close}
             className={`px-3 py-2 text-xs rounded-none flex items-center gap-2 ${
               isActive('/') ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant'
@@ -166,6 +174,7 @@ export default function Navbar() {
           </Link>
           <Link
             to="/templates"
+            reloadDocument
             onClick={close}
             className={`px-3 py-2 text-xs rounded-none flex items-center gap-2 ${
               isActive('/templates') ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant'
@@ -177,6 +186,7 @@ export default function Navbar() {
           {isLoggedIn && (isAdmin || isModerator) && (
             <Link
               to="/admin/dashboard"
+              reloadDocument
               onClick={close}
               className={`px-3 py-2 text-xs rounded-none flex items-center gap-2 ${
                 isActive('/admin/dashboard') ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant'

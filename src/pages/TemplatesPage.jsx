@@ -191,7 +191,9 @@ export default function TemplatesPage() {
               return (
                 <article
                   key={id}
-                  onClick={() => navigate(`/templates/${id}`, { state: { template: tpl, danger } })}
+                  onClick={() => {
+                    window.location.href = `/templates/${id}`;
+                  }}
                   className="bg-surface-container-low hover:bg-surface-container rounded-none p-space-lg border border-white/5 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-lg flex flex-col justify-between group"
                 >
                   <div>
