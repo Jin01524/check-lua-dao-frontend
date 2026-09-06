@@ -407,6 +407,180 @@ function TemplatesTab() {
   );
 }
 
+// Modal đổi tên tài khoản
+function RenameUserModal({ user, onClose, onUpdated }) {
+  const [newUsername, setNewUsername] = useState(user?.username || '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newUsername.trim()) {
+      setError('Vui lòng nhập tên tài khoản mới.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await API.patch(`/api/admin/users/${user.id}`, { new_username: newUsername.trim() });
+      onUpdated();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Đổi tên tài khoản thất bại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-md bg-surface-container-low border border-white/10 p-5 rounded-none shadow-2xl">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[20px]">badge</span>
+            <h3 className="font-title-md text-sm font-bold text-on-surface">Đổi Tên Tài Khoản</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 text-on-surface-variant hover:text-on-surface rounded-none"
+          >
+            <span className="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        {error && (
+          <div className="p-3 mb-4 bg-error-container/20 border border-error/30 text-error text-xs flex items-center gap-2 rounded-none">
+            <span className="material-symbols-outlined text-[16px]">warning</span>
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">
+              Tên tài khoản hiện tại: <span className="font-bold text-on-surface">{user.username}</span>
+            </label>
+            <label className="block text-xs font-medium text-on-surface mb-1 mt-3">
+              Tên tài khoản mới
+            </label>
+            <input
+              type="text"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              placeholder="ví dụ: mod_thao_soc..."
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface rounded-none border border-white/10"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 text-xs font-semibold bg-primary-container hover:bg-inverse-primary text-on-primary-container rounded-none transition-all disabled:opacity-50 flex items-center gap-1.5"
+            >
+              {loading ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Modal đổi mật khẩu
+function ChangePasswordModal({ user, onClose, onUpdated }) {
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!password || password.length < 6) {
+      setError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await API.patch(`/api/admin/users/${user.id}`, { password });
+      onUpdated('Đã đổi mật khẩu thành công!');
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Đổi mật khẩu thất bại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-md bg-surface-container-low border border-white/10 p-5 rounded-none shadow-2xl">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[20px]">lock_reset</span>
+            <h3 className="font-title-md text-sm font-bold text-on-surface">Đặt Lại Mật Khẩu</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 text-on-surface-variant hover:text-on-surface rounded-none"
+          >
+            <span className="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        {error && (
+          <div className="p-3 mb-4 bg-error-container/20 border border-error/30 text-error text-xs flex items-center gap-2 rounded-none">
+            <span className="material-symbols-outlined text-[16px]">warning</span>
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">
+              Đổi mật khẩu cho: <span className="font-bold text-on-surface">{user.username}</span>
+            </label>
+            <label className="block text-xs font-medium text-on-surface mb-1 mt-3">
+              Mật khẩu mới
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Tối thiểu 6 ký tự..."
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface rounded-none border border-white/10"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 text-xs font-semibold bg-primary-container hover:bg-inverse-primary text-on-primary-container rounded-none transition-all disabled:opacity-50 flex items-center gap-1.5"
+            >
+              {loading ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // Tab 3: Quản lý phân quyền & Tạo tài khoản kiểm duyệt viên
 function UsersTab() {
   const [users, setUsers] = useState([]);
@@ -417,6 +591,9 @@ function UsersTab() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const [renamingUser, setRenamingUser] = useState(null);
+  const [passUser, setPassUser] = useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -466,20 +643,20 @@ function UsersTab() {
     }
   };
 
-  const handleToggleRole = async (userId, currentRole, username) => {
+  const handleToggleActive = async (userId, currentActive, username) => {
     if (username?.toLowerCase() === 'admin') {
-      alert('Không thể thay đổi vai trò của tài khoản Quản trị viên mặc định.');
+      alert('Không thể khóa tài khoản Quản trị viên mặc định.');
       return;
     }
-    const targetRole = currentRole === 'admin' ? 'moderator' : 'admin';
-    const roleName = targetRole === 'admin' ? 'Quản trị viên' : 'Kiểm duyệt viên';
-    if (!window.confirm(`Bạn có chắc muốn đổi vai trò của "${username}" thành "${roleName}" không?`)) return;
+    const willLock = currentActive !== false;
+    const actionText = willLock ? 'KHÓA' : 'MỞ KHÓA';
+    if (!window.confirm(`Bạn có chắc muốn ${actionText} tài khoản "${username}" không?`)) return;
 
     try {
-      await API.patch(`/api/admin/users/${userId}`, { role: targetRole });
-      setUsers(users.map((u) => (u.id === userId ? { ...u, role: targetRole } : u)));
+      await API.patch(`/api/admin/users/${userId}`, { is_active: !willLock });
+      setUsers(users.map((u) => (u.id === userId ? { ...u, is_active: !willLock } : u)));
     } catch (err) {
-      alert(err.response?.data?.error || 'Không thể cập nhật quyền.');
+      alert(err.response?.data?.error || 'Không thể thay đổi trạng thái tài khoản.');
     }
   };
 
@@ -488,7 +665,7 @@ function UsersTab() {
       alert('Không thể xóa tài khoản Quản trị viên mặc định.');
       return;
     }
-    if (!window.confirm(`Bạn có chắc muốn xóa tài khoản "${username}" không?`)) return;
+    if (!window.confirm(`Bạn có chắc muốn XÓA VĨNH VIỄN tài khoản "${username}" không? Hành động này không thể hoàn tác.`)) return;
 
     try {
       await API.delete(`/api/admin/users/${userId}`);
@@ -501,7 +678,7 @@ function UsersTab() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
       {/* Cột trái: Form tạo tài khoản kiểm duyệt viên (5 cols) */}
-      <div className="lg:col-span-5 bg-surface-container-low p-space-md rounded-xl border border-white/5 space-y-4">
+      <div className="lg:col-span-5 bg-surface-container-low p-space-md rounded-none border border-white/5 space-y-4">
         <div>
           <div className="flex items-center gap-2 text-primary mb-1">
             <span className="material-symbols-outlined text-[20px]">person_add</span>
@@ -510,19 +687,19 @@ function UsersTab() {
             </h3>
           </div>
           <p className="text-xs text-on-surface-variant">
-            Cấp tài khoản cho nhân sự vận hành tham gia kiểm duyệt và thẩm định các mẫu tin nhắn lừa đảo
+            Cấp tài khoản kiểm duyệt viên (chỉ có quyền kiểm duyệt tin nhắn lừa đảo để đưa lên kho mẫu)
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-error-container/20 border border-error/30 rounded-lg text-error text-xs flex items-center gap-2">
+          <div className="p-3 bg-error-container/20 border border-error/30 rounded-none text-error text-xs flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">warning</span>
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="p-3 bg-[#10b981]/20 border border-[#10b981]/30 rounded-lg text-[#10b981] text-xs flex items-center gap-2">
+          <div className="p-3 bg-[#10b981]/20 border border-[#10b981]/30 rounded-none text-[#10b981] text-xs flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">check_circle</span>
             <span>{success}</span>
           </div>
@@ -538,7 +715,7 @@ function UsersTab() {
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               placeholder="ví dụ: mod_thao, kiemduyet_01..."
-              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -551,7 +728,7 @@ function UsersTab() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Tối thiểu 6 ký tự..."
-              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -562,20 +739,20 @@ function UsersTab() {
             <select
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
-              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
             >
-              <option value="moderator">Kiểm duyệt viên (Moderator) - Duyệt mẫu tin</option>
+              <option value="moderator">Kiểm duyệt viên (Moderator) - Duyệt tin nhắn lừa đảo</option>
               <option value="admin">Quản trị viên (Admin) - Toàn quyền hệ thống</option>
             </select>
-            <p className="text-[11px] text-on-surface-variant mt-1">
-              * Kiểm duyệt viên chỉ có quyền xem và duyệt các mẫu tin lừa đảo, không thể truy cập API Keys hay quản lý tài khoản.
+            <p className="text-[11px] text-on-surface-variant mt-1.5 leading-relaxed">
+              * Tài khoản Kiểm duyệt viên chỉ có quyền truy cập vào Bàn kiểm duyệt tin nhắn lừa đảo để phê duyệt đưa lên trang mẫu tin. Không thể truy cập Quản trị API Key hay Quản lý phân quyền.
             </p>
           </div>
 
           <button
             type="submit"
             disabled={creating}
-            className="w-full py-2 px-3 bg-primary-container hover:bg-inverse-primary text-on-primary-container font-semibold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm mt-2 disabled:opacity-50"
+            className="w-full py-2.5 px-3 bg-primary-container hover:bg-inverse-primary text-on-primary-container font-semibold text-xs rounded-none transition-all flex items-center justify-center gap-1.5 shadow-sm mt-2 disabled:opacity-50"
           >
             {creating ? (
               <>
@@ -593,19 +770,19 @@ function UsersTab() {
       </div>
 
       {/* Cột phải: Bảng danh sách tài khoản (7 cols) */}
-      <div className="lg:col-span-7 bg-surface-container-low p-space-md rounded-xl border border-white/5">
+      <div className="lg:col-span-7 bg-surface-container-low p-space-md rounded-none border border-white/5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-title-md text-sm font-bold text-on-surface">
               Danh Sách Nhân Sự Phân Quyền ({users.length})
             </h3>
             <p className="text-xs text-on-surface-variant mt-0.5">
-              Danh sách các tài khoản kiểm duyệt viên và quản trị viên đang hoạt động
+              Quản lý tài khoản kiểm duyệt: đổi tên, đổi mật khẩu, khóa/mở khóa hoặc xóa tài khoản
             </p>
           </div>
           <button
             onClick={fetchUsers}
-            className="p-1.5 text-on-surface-variant hover:text-primary rounded-lg transition-colors"
+            className="p-1.5 text-on-surface-variant hover:text-primary rounded-none transition-colors"
             title="Làm mới"
           >
             <span className="material-symbols-outlined text-[18px]">refresh</span>
@@ -620,10 +797,10 @@ function UsersTab() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-on-surface">
               <thead>
-                <tr className="border-b border-white/10 text-on-surface-variant font-label-badge">
+                <tr className="border-b border-white/10 text-on-surface-variant font-label-badge text-[11px]">
                   <th className="py-2.5 px-3">TÀI KHOẢN</th>
                   <th className="py-2.5 px-3">VAI TRÒ</th>
-                  <th className="py-2.5 px-3">NGÀY TẠO</th>
+                  <th className="py-2.5 px-3">TRẠNG THÁI</th>
                   <th className="py-2.5 px-3 text-right">THAO TÁC</th>
                 </tr>
               </thead>
@@ -631,30 +808,34 @@ function UsersTab() {
                 {users.map((u) => {
                   const isMaster = u.username?.toLowerCase() === 'admin';
                   const isAdminRole = u.role === 'admin';
+                  const isActive = u.is_active !== false;
 
                   return (
                     <tr key={u.id} className="hover:bg-surface-container/50 transition-colors">
                       <td className="py-3 px-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px] uppercase">
+                          <div className="w-7 h-7 rounded-none bg-primary/20 text-primary flex items-center justify-center font-bold text-[11px] uppercase border border-primary/30">
                             {u.username ? u.username[0] : 'U'}
                           </div>
                           <div>
                             <div className="font-semibold text-on-surface flex items-center gap-1.5">
                               <span>{u.username}</span>
                               {isMaster && (
-                                <span className="font-label-badge text-[9px] bg-primary-container text-on-primary-container px-1 rounded">
+                                <span className="font-label-badge text-[9px] bg-primary-container text-on-primary-container px-1 rounded-none">
                                   GỐC
                                 </span>
                               )}
                             </div>
+                            <span className="text-[10px] text-on-surface-variant">
+                              {u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Mặc định'}
+                            </span>
                           </div>
                         </div>
                       </td>
 
                       <td className="py-3 px-3">
                         <span
-                          className={`font-label-badge px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`font-label-badge px-2 py-0.5 rounded-none text-[10px] font-bold ${
                             isAdminRole
                               ? 'bg-primary-container/20 text-primary border border-primary/30'
                               : 'bg-tertiary-container/20 text-tertiary border border-tertiary/30'
@@ -664,25 +845,63 @@ function UsersTab() {
                         </span>
                       </td>
 
-                      <td className="py-3 px-3 text-on-surface-variant text-[11px]">
-                        {u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Mặc định'}
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-flex items-center gap-1 font-label-badge px-2 py-0.5 rounded-none text-[10px] font-bold ${
+                            isActive
+                              ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30'
+                              : 'bg-error-container/20 text-error border border-error/30'
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              isActive ? 'bg-[#10b981]' : 'bg-error'
+                            }`}
+                          ></span>
+                          {isActive ? 'Hoạt động' : 'Đã khóa'}
+                        </span>
                       </td>
 
                       <td className="py-3 px-3 text-right">
                         {!isMaster ? (
                           <div className="inline-flex items-center gap-1">
+                            {/* Đổi tên */}
                             <button
-                              onClick={() => handleToggleRole(u.id, u.role, u.username)}
-                              className="p-1 text-on-surface-variant hover:text-primary transition-colors"
-                              title={isAdminRole ? 'Hạ cấp thành Kiểm duyệt viên' : 'Nâng cấp thành Quản trị viên'}
+                              onClick={() => setRenamingUser(u)}
+                              className="p-1.5 text-on-surface-variant hover:text-primary transition-colors rounded-none border border-transparent hover:border-white/10"
+                              title="Đổi tên tài khoản"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">edit</span>
+                            </button>
+
+                            {/* Đổi mật khẩu */}
+                            <button
+                              onClick={() => setPassUser(u)}
+                              className="p-1.5 text-on-surface-variant hover:text-primary transition-colors rounded-none border border-transparent hover:border-white/10"
+                              title="Đổi mật khẩu"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">key</span>
+                            </button>
+
+                            {/* Khóa / Mở khóa */}
+                            <button
+                              onClick={() => handleToggleActive(u.id, u.is_active, u.username)}
+                              className={`p-1.5 transition-colors rounded-none border border-transparent hover:border-white/10 ${
+                                isActive
+                                  ? 'text-on-surface-variant hover:text-warning'
+                                  : 'text-error hover:text-[#10b981]'
+                              }`}
+                              title={isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
                             >
                               <span className="material-symbols-outlined text-[16px]">
-                                {isAdminRole ? 'arrow_downward' : 'arrow_upward'}
+                                {isActive ? 'lock' : 'lock_open'}
                               </span>
                             </button>
+
+                            {/* Xóa tài khoản */}
                             <button
                               onClick={() => handleDeleteUser(u.id, u.username)}
-                              className="p-1 text-on-surface-variant hover:text-error transition-colors"
+                              className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded-none border border-transparent hover:border-white/10"
                               title="Xóa tài khoản"
                             >
                               <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -700,6 +919,29 @@ function UsersTab() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      {renamingUser && (
+        <RenameUserModal
+          user={renamingUser}
+          onClose={() => setRenamingUser(null)}
+          onUpdated={() => {
+            fetchUsers();
+            setSuccess('Đã cập nhật tên tài khoản thành công!');
+          }}
+        />
+      )}
+
+      {passUser && (
+        <ChangePasswordModal
+          user={passUser}
+          onClose={() => setPassUser(null)}
+          onUpdated={(msg) => {
+            fetchUsers();
+            if (msg) setSuccess(msg);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -785,7 +1027,9 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Tab Content */}
-        {activeTab === 'moderation' ? <TemplatesTab /> : <ApiKeysTab />}
+        {activeTab === 'moderation' && <TemplatesTab />}
+        {isAdmin && activeTab === 'apikeys' && <ApiKeysTab />}
+        {isAdmin && activeTab === 'users' && <UsersTab />}
       </div>
     </main>
   );
