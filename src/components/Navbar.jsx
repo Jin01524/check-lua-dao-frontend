@@ -5,7 +5,7 @@ import logoImg from '../assets/Logo-checkluadao.png';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { isAdmin, isLoggedIn, logout } = useAuth();
+  const { isAdmin, isModerator, isLoggedIn, user, logout } = useAuth();
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
@@ -23,20 +23,20 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="font-headline-sm text-[18px] tracking-tight text-on-surface font-bold leading-none">
+                <span className="font-display-hero text-xl font-bold tracking-tight text-on-surface">
                   Check<span className="text-primary">LuaDao</span>
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-label-badge bg-surface-container-highest border border-outline-variant/40 text-primary-fixed leading-none">
-                  v3.2 PROD
+                <span className="font-label-badge text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-tertiary border border-tertiary/20">
+                  AI v4.1
                 </span>
               </div>
-              <span className="font-label-badge text-[10px] text-tertiary tracking-wider uppercase mt-0.5">
-                AI Defense VN
+              <span className="font-label-caption text-[10px] text-on-surface-variant hidden sm:inline -mt-0.5">
+                Lá chắn phát hiện tin nhắn lừa đảo quốc gia
               </span>
             </div>
           </Link>
 
-          {/* Central Navigation for Desktop */}
+          {/* Nav Links */}
           <nav className="hidden lg:flex items-center gap-1 p-1 bg-surface-container-low/80 border border-white/5 rounded-xl">
             <Link
               to="/"
@@ -62,7 +62,7 @@ export default function Navbar() {
               <span>Kho mẫu lừa đảo</span>
             </Link>
 
-            {isLoggedIn && isAdmin && (
+            {isLoggedIn && (isAdmin || isModerator) && (
               <Link
                 to="/admin/dashboard"
                 className={`px-3 py-1.5 font-title-md text-sm flex items-center gap-1.5 rounded-lg transition-all ${
@@ -72,7 +72,7 @@ export default function Navbar() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">tune</span>
-                <span>Quản trị hệ thống</span>
+                <span>{isAdmin ? 'Quản trị hệ thống' : 'Kiểm duyệt tin'}</span>
               </Link>
             )}
           </nav>
@@ -108,15 +108,15 @@ export default function Navbar() {
           {/* User Auth Info / Actions */}
           {isLoggedIn ? (
             <div className="flex items-center gap-2 pl-2 pr-1.5 py-1 bg-surface-container-low/80 border border-white/5 rounded-xl">
-              <div className="w-7 h-7 rounded-full bg-primary-container/40 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs">
-                A
+              <div className="w-7 h-7 rounded-full bg-primary-container/40 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs uppercase">
+                {user?.username ? user.username[0] : (isAdmin ? 'A' : 'M')}
               </div>
               <div className="hidden lg:flex flex-col text-left">
-                <span className="font-label-caption text-[11px] text-on-surface font-semibold leading-tight">
-                  Quản trị viên
+                <span className="font-label-caption text-[11px] text-on-surface font-semibold leading-tight truncate max-w-[100px]">
+                  {user?.username || (isAdmin ? 'Admin' : 'Kiểm duyệt')}
                 </span>
                 <span className="font-label-badge text-[9px] text-primary uppercase leading-tight">
-                  SOC Tier-2
+                  {isAdmin ? 'Quản trị viên' : 'Kiểm duyệt viên'}
                 </span>
               </div>
               <button
@@ -133,26 +133,26 @@ export default function Navbar() {
               className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-colors flex items-center gap-1.5 border border-white/10"
             >
               <span className="material-symbols-outlined text-[16px] text-primary">lock</span>
-              <span className="hidden sm:inline">Quản trị</span>
+              <span>Đăng nhập</span>
             </Link>
           )}
 
-          {/* Mobile Hamburger Toggle */}
+          {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setOpen(!open)}
-            className="lg:hidden p-2 text-on-surface-variant hover:text-on-surface bg-surface-container-low border border-white/5 rounded-lg"
+            className="lg:hidden p-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors"
             aria-label="Toggle menu"
           >
-            <span className="material-symbols-outlined text-[22px]">
+            <span className="material-symbols-outlined text-[20px]">
               {open ? 'close' : 'menu'}
             </span>
           </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Drawer */}
       {open && (
-        <div className="lg:hidden px-4 py-3 bg-surface-container-low/95 border-b border-white/10 flex flex-col gap-2">
+        <div className="lg:hidden border-t border-white/10 bg-[#0a0e17] px-4 py-3 space-y-2 animate-fadeIn">
           <Link
             to="/"
             onClick={close}
@@ -173,7 +173,7 @@ export default function Navbar() {
             <span className="material-symbols-outlined text-[18px]">database</span>
             <span>Kho mẫu lừa đảo</span>
           </Link>
-          {isLoggedIn && isAdmin && (
+          {isLoggedIn && (isAdmin || isModerator) && (
             <Link
               to="/admin/dashboard"
               onClick={close}
@@ -182,7 +182,7 @@ export default function Navbar() {
               }`}
             >
               <span className="material-symbols-outlined text-[18px]">tune</span>
-              <span>Quản trị hệ thống</span>
+              <span>{isAdmin ? 'Quản trị hệ thống' : 'Kiểm duyệt tin'}</span>
             </Link>
           )}
         </div>

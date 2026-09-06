@@ -161,7 +161,7 @@ export default function TemplateDetailPage() {
                 <span>•</span>
                 <span className="flex items-center gap-1 text-[#10b981]">
                   <span className="material-symbols-outlined text-[14px]">verified</span>
-                  <span>Đã kiểm định bởi SOC Team</span>
+                  <span>Đã kiểm định thông tin</span>
                 </span>
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function TemplateDetailPage() {
                 <div className="bg-surface-container-low rounded-xl p-space-md border border-white/5 flex flex-col gap-space-md">
                   <div className="flex items-center gap-1.5 font-label-badge text-xs text-tertiary uppercase font-semibold">
                     <span className="material-symbols-outlined text-[18px]">analytics</span>
-                    <span>Phân tích pháp y số (Forensic Breakdown)</span>
+                    <span>Phân tích kịch bản lừa đảo</span>
                   </div>
 
                   {/* AI Analysis Narrative */}
@@ -266,7 +266,7 @@ export default function TemplateDetailPage() {
                 <div className="p-4 bg-error-container/20 border border-error/30 rounded-xl flex items-center justify-between gap-4">
                   <div className="text-xs">
                     <div className="font-bold text-error">Bạn đã lỡ chuyển tiền hoặc cung cấp mã OTP?</div>
-                    <div className="text-on-surface-variant mt-0.5">Hãy gọi ngay tổng đài ứng cứu khẩn cấp</div>
+                    <div className="text-on-surface-variant mt-0.5">Hãy gọi ngay tổng đài An toàn mạng quốc gia.</div>
                   </div>
                   <a
                     href="tel:18001031"

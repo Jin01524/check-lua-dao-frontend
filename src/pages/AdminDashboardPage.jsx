@@ -396,6 +396,7 @@ function TemplatesTab() {
         </div>
       )}
 
+      {/* Modal */}
       {selectedTemplate && (
         <TemplateModal
           template={selectedTemplate}
@@ -406,10 +407,307 @@ function TemplatesTab() {
   );
 }
 
+// Tab 3: Quản lý phân quyền & Tạo tài khoản kiểm duyệt viên
+function UsersTab() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newRole, setNewRole] = useState('moderator');
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const fetchUsers = async () => {
+    try {
+      const res = await API.get('/api/admin/users');
+      setUsers(res.data.data || []);
+    } catch {
+      setError('Không thể tải danh sách tài khoản.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!newUsername.trim()) {
+      setError('Vui lòng nhập tên đăng nhập.');
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const res = await API.post('/api/admin/users', {
+        username: newUsername.trim(),
+        password: newPassword,
+        role: newRole,
+      });
+      setSuccess(res.data?.message || 'Đã tạo tài khoản thành công!');
+      setNewUsername('');
+      setNewPassword('');
+      setNewRole('moderator');
+      fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Tạo tài khoản thất bại.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleToggleRole = async (userId, currentRole, username) => {
+    if (username?.toLowerCase() === 'admin') {
+      alert('Không thể thay đổi vai trò của tài khoản Quản trị viên mặc định.');
+      return;
+    }
+    const targetRole = currentRole === 'admin' ? 'moderator' : 'admin';
+    const roleName = targetRole === 'admin' ? 'Quản trị viên' : 'Kiểm duyệt viên';
+    if (!window.confirm(`Bạn có chắc muốn đổi vai trò của "${username}" thành "${roleName}" không?`)) return;
+
+    try {
+      await API.patch(`/api/admin/users/${userId}`, { role: targetRole });
+      setUsers(users.map((u) => (u.id === userId ? { ...u, role: targetRole } : u)));
+    } catch (err) {
+      alert(err.response?.data?.error || 'Không thể cập nhật quyền.');
+    }
+  };
+
+  const handleDeleteUser = async (userId, username) => {
+    if (username?.toLowerCase() === 'admin') {
+      alert('Không thể xóa tài khoản Quản trị viên mặc định.');
+      return;
+    }
+    if (!window.confirm(`Bạn có chắc muốn xóa tài khoản "${username}" không?`)) return;
+
+    try {
+      await API.delete(`/api/admin/users/${userId}`);
+      setUsers(users.filter((u) => u.id !== userId));
+    } catch (err) {
+      alert(err.response?.data?.error || 'Không thể xóa tài khoản.');
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+      {/* Cột trái: Form tạo tài khoản kiểm duyệt viên (5 cols) */}
+      <div className="lg:col-span-5 bg-surface-container-low p-space-md rounded-xl border border-white/5 space-y-4">
+        <div>
+          <div className="flex items-center gap-2 text-primary mb-1">
+            <span className="material-symbols-outlined text-[20px]">person_add</span>
+            <h3 className="font-title-md text-sm font-bold text-on-surface">
+              Tạo Tài Khoản Phân Quyền
+            </h3>
+          </div>
+          <p className="text-xs text-on-surface-variant">
+            Cấp tài khoản cho nhân sự vận hành tham gia kiểm duyệt và thẩm định các mẫu tin nhắn lừa đảo
+          </p>
+        </div>
+
+        {error && (
+          <div className="p-3 bg-error-container/20 border border-error/30 rounded-lg text-error text-xs flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px]">warning</span>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="p-3 bg-[#10b981]/20 border border-[#10b981]/30 rounded-lg text-[#10b981] text-xs flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+            <span>{success}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleCreateUser} className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-on-surface mb-1">
+              Tên tài khoản (Username)
+            </label>
+            <input
+              type="text"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              placeholder="ví dụ: mod_thao, kiemduyet_01..."
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-on-surface mb-1">
+              Mật khẩu khởi tạo
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Tối thiểu 6 ký tự..."
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-on-surface mb-1">
+              Phân quyền tài khoản
+            </label>
+            <select
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value)}
+              className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            >
+              <option value="moderator">Kiểm duyệt viên (Moderator) - Duyệt mẫu tin</option>
+              <option value="admin">Quản trị viên (Admin) - Toàn quyền hệ thống</option>
+            </select>
+            <p className="text-[11px] text-on-surface-variant mt-1">
+              * Kiểm duyệt viên chỉ có quyền xem và duyệt các mẫu tin lừa đảo, không thể truy cập API Keys hay quản lý tài khoản.
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={creating}
+            className="w-full py-2 px-3 bg-primary-container hover:bg-inverse-primary text-on-primary-container font-semibold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm mt-2 disabled:opacity-50"
+          >
+            {creating ? (
+              <>
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                <span>Đang khởi tạo...</span>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[16px]">add_moderator</span>
+                <span>Tạo Tài Khoản Ngay</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+
+      {/* Cột phải: Bảng danh sách tài khoản (7 cols) */}
+      <div className="lg:col-span-7 bg-surface-container-low p-space-md rounded-xl border border-white/5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-title-md text-sm font-bold text-on-surface">
+              Danh Sách Nhân Sự Phân Quyền ({users.length})
+            </h3>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              Danh sách các tài khoản kiểm duyệt viên và quản trị viên đang hoạt động
+            </p>
+          </div>
+          <button
+            onClick={fetchUsers}
+            className="p-1.5 text-on-surface-variant hover:text-primary rounded-lg transition-colors"
+            title="Làm mới"
+          >
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-xs text-on-surface-variant">Đang tải danh sách tài khoản...</div>
+        ) : users.length === 0 ? (
+          <div className="p-8 text-center text-xs text-on-surface-variant">Chưa có tài khoản nào khác.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-on-surface">
+              <thead>
+                <tr className="border-b border-white/10 text-on-surface-variant font-label-badge">
+                  <th className="py-2.5 px-3">TÀI KHOẢN</th>
+                  <th className="py-2.5 px-3">VAI TRÒ</th>
+                  <th className="py-2.5 px-3">NGÀY TẠO</th>
+                  <th className="py-2.5 px-3 text-right">THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {users.map((u) => {
+                  const isMaster = u.username?.toLowerCase() === 'admin';
+                  const isAdminRole = u.role === 'admin';
+
+                  return (
+                    <tr key={u.id} className="hover:bg-surface-container/50 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px] uppercase">
+                            {u.username ? u.username[0] : 'U'}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-on-surface flex items-center gap-1.5">
+                              <span>{u.username}</span>
+                              {isMaster && (
+                                <span className="font-label-badge text-[9px] bg-primary-container text-on-primary-container px-1 rounded">
+                                  GỐC
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-3">
+                        <span
+                          className={`font-label-badge px-2 py-0.5 rounded text-[10px] font-bold ${
+                            isAdminRole
+                              ? 'bg-primary-container/20 text-primary border border-primary/30'
+                              : 'bg-tertiary-container/20 text-tertiary border border-tertiary/30'
+                          }`}
+                        >
+                          {isAdminRole ? 'QUẢN TRỊ VIÊN' : 'KIỂM DUYỆT VIÊN'}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-3 text-on-surface-variant text-[11px]">
+                        {u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Mặc định'}
+                      </td>
+
+                      <td className="py-3 px-3 text-right">
+                        {!isMaster ? (
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              onClick={() => handleToggleRole(u.id, u.role, u.username)}
+                              className="p-1 text-on-surface-variant hover:text-primary transition-colors"
+                              title={isAdminRole ? 'Hạ cấp thành Kiểm duyệt viên' : 'Nâng cấp thành Quản trị viên'}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">
+                                {isAdminRole ? 'arrow_downward' : 'arrow_upward'}
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(u.id, u.username)}
+                              className="p-1 text-on-surface-variant hover:text-error transition-colors"
+                              title="Xóa tài khoản"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">delete</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-on-surface-variant italic">Mặc định</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Main Page
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState('moderation');
-  const { logout } = useAuth();
+  const { isAdmin, isModerator, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -423,11 +721,11 @@ export default function AdminDashboardPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-label-badge text-xs text-primary bg-primary-container/20 border border-primary/30 px-2 py-0.5 rounded">
-                SOC TIER-2 OPERATIONAL CONSOLE
+                {isAdmin ? 'SOC TIER-2 OPERATIONAL CONSOLE' : 'KIỂM DUYỆT VIÊN (MODERATOR CONSOLE)'}
               </span>
             </div>
             <h1 className="font-headline-sm text-2xl font-bold text-on-surface">
-              Quản Trị Hệ Thống & Kiểm Duyệt An Ninh
+              {isAdmin ? 'Quản Trị Hệ Thống & Kiểm Duyệt An Ninh' : 'Bàn Làm Việc Kiểm Duyệt Viên'}
             </h1>
           </div>
 
@@ -446,31 +744,45 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-2 p-1 bg-surface-container-low border border-white/5 rounded-xl w-fit mb-space-lg">
-          <button
-            onClick={() => setActiveTab('moderation')}
-            className={`px-4 py-2 rounded-lg text-xs font-title-md flex items-center gap-2 transition-all ${
-              activeTab === 'moderation'
-                ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">verified_user</span>
-            <span>Bàn Kiểm Duyệt Tin</span>
-          </button>
+        {isAdmin && (
+          <div className="flex items-center gap-2 p-1 bg-surface-container-low border border-white/5 rounded-xl w-fit mb-space-lg">
+            <button
+              onClick={() => setActiveTab('moderation')}
+              className={`px-4 py-2 rounded-lg text-xs font-title-md flex items-center gap-2 transition-all ${
+                activeTab === 'moderation'
+                  ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">verified_user</span>
+              <span>Bàn Kiểm Duyệt Tin</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('apikeys')}
-            className={`px-4 py-2 rounded-lg text-xs font-title-md flex items-center gap-2 transition-all ${
-              activeTab === 'apikeys'
-                ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">key</span>
-            <span>Quản Lý API Key Gemini</span>
-          </button>
-        </div>
+            <button
+              onClick={() => setActiveTab('apikeys')}
+              className={`px-4 py-2 rounded-lg text-xs font-title-md flex items-center gap-2 transition-all ${
+                activeTab === 'apikeys'
+                  ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">key</span>
+              <span>Quản Lý API Key Gemini</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-4 py-2 rounded-lg text-xs font-title-md flex items-center gap-2 transition-all ${
+                activeTab === 'users'
+                  ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">manage_accounts</span>
+              <span>Quản Lý Phân Quyền</span>
+            </button>
+          </div>
+        )}
 
         {/* Tab Content */}
         {activeTab === 'moderation' ? <TemplatesTab /> : <ApiKeysTab />}

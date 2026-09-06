@@ -10,8 +10,8 @@ import RegisterPage from './pages/RegisterPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
 function ProtectedRoute({ children }) {
-  const { isAdmin } = useAuth();
-  if (!isAdmin) return <Navigate to="/admin/login" replace />;
+  const { isAdmin, isModerator } = useAuth();
+  if (!isAdmin && !isModerator) return <Navigate to="/admin/login" replace />;
   return children;
 }
 

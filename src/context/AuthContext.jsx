@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   });
 
   const isAdmin = user?.role === 'admin';
+  const isModerator = user?.role === 'moderator';
   const isLoggedIn = !!token;
 
   const login = (newToken, userData) => {
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAdmin, isLoggedIn, user, token, login, logout }}>
+    <AuthContext.Provider value={{ isAdmin, isModerator, isLoggedIn, user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
