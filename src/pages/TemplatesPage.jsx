@@ -10,6 +10,7 @@ export default function TemplatesPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('ALL');
+  const [selectedStatus, setSelectedStatus] = useState('ALL'); // 'ALL' | 'VERIFIED' | 'UNVERIFIED'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,8 +43,16 @@ export default function TemplatesPage() {
       selectedPlatform === 'ALL' ||
       tpl.platform?.toLowerCase() === selectedPlatform.toLowerCase();
 
-    return matchesSearch && matchesPlatform;
+    const matchesStatus =
+      selectedStatus === 'ALL' ||
+      (selectedStatus === 'VERIFIED' && Boolean(tpl.is_approved)) ||
+      (selectedStatus === 'UNVERIFIED' && !tpl.is_approved);
+
+    return matchesSearch && matchesPlatform && matchesStatus;
   });
+
+  const verifiedCount = templates.filter((t) => t.is_approved).length;
+  const unverifiedCount = templates.filter((t) => !t.is_approved).length;
 
   return (
     <main className="w-full pt-8 pb-20 bg-surface min-h-screen relative overflow-hidden">
@@ -56,7 +65,6 @@ export default function TemplatesPage() {
         <section className="mb-space-xl">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-space-lg">
             <div className="max-w-3xl">
-
               <h1 className="font-headline-lg text-2xl sm:text-3xl lg:text-headline-lg text-on-surface tracking-tight mb-space-2xs font-bold">
                 Kho Dữ Liệu Mẫu Tin Nhắn Lừa Đảo Đã Cảnh Báo
               </h1>
@@ -66,15 +74,20 @@ export default function TemplatesPage() {
             </div>
 
             {/* Metric Pulse Cards */}
-            <div className="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-none border border-white/5 self-start lg:self-auto">
+            <div className="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-none border border-white/5 self-start lg:self-auto flex-wrap sm:flex-nowrap">
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
-                <span className="font-label-caption text-label-caption text-on-surface-variant block">Đã xác thực</span>
-                <span className="font-headline-sm text-headline-sm text-primary font-bold">{templates.length > 0 ? `${templates.length}+` : '0'}</span>
+                <span className="font-label-caption text-label-caption text-on-surface-variant block">Tổng số mẫu</span>
+                <span className="font-headline-sm text-headline-sm text-primary font-bold">{templates.length > 0 ? `${templates.length}` : '0'}</span>
               </div>
 
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
-                <span className="font-label-caption text-label-caption text-on-surface-variant block">Trạng thái</span>
-                <span className="font-label-badge text-label-badge text-[#10b981] font-bold block mt-1">THỜI GIAN THỰC</span>
+                <span className="font-label-caption text-label-caption text-on-surface-variant block">Đã kiểm định</span>
+                <span className="font-headline-sm text-headline-sm text-[#10b981] font-bold">{verifiedCount}</span>
+              </div>
+
+              <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
+                <span className="font-label-caption text-label-caption text-on-surface-variant block">Chưa kiểm định</span>
+                <span className="font-headline-sm text-headline-sm text-amber-400 font-bold">{unverifiedCount}</span>
               </div>
             </div>
           </div>
@@ -103,28 +116,52 @@ export default function TemplatesPage() {
               )}
             </div>
 
-            {/* Platform Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-white/5">
-              <span className="text-xs font-label-badge text-on-surface-variant mr-1">NỀN TẢNG:</span>
-              {[
-                { id: 'ALL', label: 'Tất cả nền tảng' },
-                { id: 'sms', label: 'SMS / Brand' },
-                { id: 'zalo', label: 'Zalo' },
-                { id: 'facebook', label: 'Facebook' },
-                { id: 'telegram', label: 'Telegram' },
-              ].map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedPlatform(p.id)}
-                  className={`px-3 py-1.5 rounded-none text-xs font-title-md transition-colors ${
-                    selectedPlatform === p.id
-                      ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                      : 'bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
+            {/* Status & Platform Filter Pills */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-white/5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-label-badge text-on-surface-variant mr-1">TRẠNG THÁI:</span>
+                {[
+                  { id: 'ALL', label: 'Tất cả' },
+                  { id: 'VERIFIED', label: 'Đã kiểm định', icon: 'verified' },
+                  { id: 'UNVERIFIED', label: 'Chưa được kiểm định', icon: 'schedule' },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedStatus(s.id)}
+                    className={`px-3 py-1.5 rounded-none text-xs font-title-md transition-colors flex items-center gap-1.5 ${
+                      selectedStatus === s.id
+                        ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
+                        : 'bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+                    }`}
+                  >
+                    {s.icon && <span className="material-symbols-outlined text-[14px]">{s.icon}</span>}
+                    <span>{s.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-label-badge text-on-surface-variant mr-1">NỀN TẢNG:</span>
+                {[
+                  { id: 'ALL', label: 'Tất cả' },
+                  { id: 'sms', label: 'SMS' },
+                  { id: 'zalo', label: 'Zalo' },
+                  { id: 'facebook', label: 'Facebook' },
+                  { id: 'telegram', label: 'Telegram' },
+                ].map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedPlatform(p.id)}
+                    className={`px-2.5 py-1.5 rounded-none text-xs font-title-md transition-colors ${
+                      selectedPlatform === p.id
+                        ? 'bg-secondary/30 text-primary font-semibold border border-primary/40'
+                        : 'bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -185,13 +222,29 @@ export default function TemplatesPage() {
                   className="bg-surface-container-low hover:bg-surface-container rounded-none p-space-lg border border-white/5 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-lg flex flex-col justify-between group"
                 >
                   <div>
-                    {/* Top Row: Severity & Case Code */}
-                    <div className="flex items-center justify-between mb-space-xs">
-                      <span
-                        className={`font-label-badge text-label-badge px-2 py-0.5 rounded-none font-bold border ${threat.badgeClass}`}
-                      >
-                        {threat.level} - {danger}%
-                      </span>
+                    {/* Top Row: Severity, Verification Status & Case Code */}
+                    <div className="flex items-center justify-between gap-2 mb-space-xs flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span
+                          className={`font-label-badge text-label-badge px-2 py-0.5 rounded-none font-bold border ${threat.badgeClass}`}
+                        >
+                          {threat.level} - {danger}%
+                        </span>
+
+                        {/* Verification Status Badge */}
+                        {tpl.is_approved ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/25 px-1.5 py-0.5">
+                            <span className="material-symbols-outlined text-[13px]">verified</span>
+                            <span>Đã kiểm định thông tin</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 bg-amber-400/10 border border-amber-400/25 px-1.5 py-0.5">
+                            <span className="material-symbols-outlined text-[13px]">schedule</span>
+                            <span>Chưa được kiểm định</span>
+                          </span>
+                        )}
+                      </div>
+
                       <span className="font-code-telemetry text-code-telemetry text-outline">
                         #CASE-{String(id).slice(-5).toUpperCase()}
                       </span>

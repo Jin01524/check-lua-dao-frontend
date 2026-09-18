@@ -163,11 +163,27 @@ export default function TemplateDetailPage() {
                   <span>{new Date(template.created_at || Date.now()).toLocaleDateString('vi-VN')}</span>
                 </span>
                 <span>•</span>
-                <span className="flex items-center gap-1 text-[#10b981]">
-                  <span className="material-symbols-outlined text-[14px]">verified</span>
-                  <span>Đã kiểm định thông tin</span>
-                </span>
+                {template.is_approved ? (
+                  <span className="flex items-center gap-1 text-[#10b981] font-semibold">
+                    <span className="material-symbols-outlined text-[14px]">verified</span>
+                    <span>Đã kiểm định thông tin</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-amber-400 bg-amber-400/10 border border-amber-400/25 px-2 py-0.5 font-semibold">
+                    <span className="material-symbols-outlined text-[14px]">schedule</span>
+                    <span>Chưa được kiểm định</span>
+                  </span>
+                )}
               </div>
+
+              {!template.is_approved && (
+                <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-amber-400 shrink-0">pending_actions</span>
+                  <div>
+                    <span className="font-bold">Trạng thái: Chưa được kiểm định.</span> Mẫu tin nhắn này được ghi nhận từ lượt quét đạt ngưỡng rủi ro, hiện đang chờ đội ngũ an ninh mạng kiểm duyệt và xác minh thông tin.
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Grid 2 Cols */}
