@@ -261,21 +261,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Educational Visual Highlight */}
-            <div className="bg-surface-container-low rounded-none p-space-md shadow-sm border border-white/5 flex flex-col sm:flex-row items-center gap-space-md">
-              <div className="w-12 h-12 rounded-none bg-tertiary/10 border border-tertiary/30 text-tertiary flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-[28px]">shield_with_heart</span>
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1 text-tertiary font-label-badge text-label-badge mb-1 uppercase">
-                  <span className="material-symbols-outlined text-[16px]">lightbulb</span>
-                  Cơ chế quét thông minh đa lớp
-                </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  CheckLuaDao kết hợp OCR trích xuất ký tự tiếng Việt, kiểm tra Whois tên miền thời gian thực, và phân tích các chỉ số thao túng tâm lý (Urgency & Fear Induction) để bảo vệ bạn trong từng giây.
-                </p>
-              </div>
-            </div>
+
           </div>
 
           {/* RIGHT PERSISTENT TELEMETRY & REPORT SUITE (5 Cols) */}
