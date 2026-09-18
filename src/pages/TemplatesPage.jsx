@@ -78,7 +78,7 @@ export default function TemplatesPage() {
             <div className="flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-none border border-white/5 self-start lg:self-auto">
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Đã xác thực</span>
-                <span className="font-headline-sm text-headline-sm text-primary font-bold">{templates.length > 0 ? `${templates.length}+` : '12,840+'}</span>
+                <span className="font-headline-sm text-headline-sm text-primary font-bold">{templates.length > 0 ? `${templates.length}+` : '0'}</span>
               </div>
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Chặn tức thời</span>

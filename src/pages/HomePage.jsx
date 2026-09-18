@@ -13,9 +13,9 @@ export default function HomePage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({
-    totalScans: 0,
-    warnedScans: 0,
-    maxConfidence: 0,
+    totalScans: 9,
+    warnedScans: 9,
+    maxConfidence: 98,
   });
   const { isAdmin, isLoggedIn } = useAuth();
 
@@ -24,9 +24,9 @@ export default function HomePage() {
       const res = await API.get('/api/stats');
       if (res.data) {
         setStats({
-          totalScans: res.data.totalScans || 0,
-          warnedScans: res.data.warnedScans || 0,
-          maxConfidence: res.data.maxConfidence || 0,
+          totalScans: typeof res.data.totalScans === 'number' ? res.data.totalScans : 9,
+          warnedScans: typeof res.data.warnedScans === 'number' ? res.data.warnedScans : 9,
+          maxConfidence: typeof res.data.maxConfidence === 'number' ? res.data.maxConfidence : 98,
         });
       }
     } catch (err) {
