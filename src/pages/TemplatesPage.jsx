@@ -61,7 +61,7 @@ export default function TemplatesPage() {
                 Kho Dữ Liệu Mẫu Tin Nhắn Lừa Đảo Đã Cảnh Báo
               </h1>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-                Tập hợp các thủ đoạn tấn công phi kỹ thuật (Social Engineering), tin nhắn mạo danh độc hại đã qua phân tích số bởi hệ thống AI chuyên sâu và kiểm chứng bởi đội ngũ an ninh mạng.
+                Tập hợp các thủ đoạn tấn công phi kỹ thuật (Social Engineering), tin nhắn mạo danh độc hại đã qua phân tích số bởi hệ thống AI và kiểm chứng bởi đội ngũ kiểm duyệt
               </p>
             </div>
 
