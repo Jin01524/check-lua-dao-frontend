@@ -131,7 +131,7 @@ export default function HomePage() {
             <span className="w-2.5 h-2.5 rounded-full bg-tertiary animate-ping"></span>
             <span className="material-symbols-outlined text-tertiary text-[18px]">verified</span>
             <span className="font-label-badge text-label-badge text-tertiary uppercase tracking-wider">
-              Phân tích đa nền tảng thời gian thực • DeepScan 4.1
+              Phân tích đa nền tảng thời gian thực
             </span>
           </div>
 

@@ -80,10 +80,7 @@ export default function TemplatesPage() {
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Đã xác thực</span>
                 <span className="font-headline-sm text-headline-sm text-primary font-bold">{templates.length > 0 ? `${templates.length}+` : '0'}</span>
               </div>
-              <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
-                <span className="font-label-caption text-label-caption text-on-surface-variant block">Chặn tức thời</span>
-                <span className="font-headline-sm text-headline-sm text-error font-bold">99.4%</span>
-              </div>
+
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Trạng thái</span>
                 <span className="font-label-badge text-label-badge text-[#10b981] font-bold block mt-1">THỜI GIAN THỰC</span>
