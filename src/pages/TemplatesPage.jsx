@@ -56,16 +56,7 @@ export default function TemplatesPage() {
         <section className="mb-space-xl">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-space-lg">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs bg-surface-container-high rounded-none mb-space-xs border border-white/5">
-                <span className="w-2 h-2 rounded-full bg-error animate-pulse"></span>
-                <span className="font-label-badge text-label-badge text-error uppercase">
-                  CƠ SỞ DỮ LIỆU ĐE DỌA QUỐC GIA
-                </span>
-                <span className="text-outline text-label-caption">•</span>
-                <span className="font-label-badge text-label-badge text-tertiary">
-                  MỨC ĐỘ RỦI RO &gt; 60%
-                </span>
-              </div>
+
               <h1 className="font-headline-lg text-2xl sm:text-3xl lg:text-headline-lg text-on-surface tracking-tight mb-space-2xs font-bold">
                 Kho Dữ Liệu Mẫu Tin Nhắn Lừa Đảo Đã Cảnh Báo
               </h1>
