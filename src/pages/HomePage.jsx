@@ -188,9 +188,6 @@ export default function HomePage() {
                     Tải Lên Mẫu Tin Nhắn
                   </span>
                 </div>
-                <span className="font-label-badge text-label-badge px-space-xs py-space-2xs bg-surface-container-highest text-primary-fixed rounded-none border border-primary/20">
-                  OCR + NLP ENGINE
-                </span>
               </div>
 
               {/* Platform Selector */}
@@ -261,13 +258,6 @@ export default function HomePage() {
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   )}
                 </button>
-
-                <div className="flex items-center justify-center gap-space-md mt-space-xs text-on-surface-variant font-label-caption text-label-caption">
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-primary text-[14px]">lock</span>
-                    Bảo mật chuẩn SHA-256
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -299,10 +289,6 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 w-full max-w-xs text-xs font-label-badge text-secondary mt-2">
-                  <div className="flex justify-between">
-                    <span>OCR Extractor:</span>
-                    <span className="text-[#10b981]">Hoàn thành</span>
-                  </div>
                   <div className="flex justify-between">
                     <span>Threat Intelligence:</span>
                     <span className="text-primary animate-pulse">Đang đối chiếu...</span>
