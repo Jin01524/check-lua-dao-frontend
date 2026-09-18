@@ -100,6 +100,66 @@ function ApiKeysTab() {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
 
+  // ── Gemini Model Realtime Switching ──────────────────────────────────────────
+  const defaultSupportedModels = [
+    {
+      id: 'gemini-3.5-flash',
+      name: 'Gemini 3.5 Flash',
+      badge: 'Khuyên dùng',
+      description: 'Thế hệ mới nhất, tối ưu lý luận an ninh mạng, phản hồi tức thì và chính xác cao.',
+      isDefault: true,
+    },
+    {
+      id: 'gemini-3.0-flash',
+      name: 'Gemini 3.0 Flash',
+      badge: 'Tốc độ cao',
+      description: 'Cân bằng tối ưu giữa tốc độ phân tích và khả năng phát hiện thủ đoạn tinh vi.',
+      isDefault: false,
+    },
+    {
+      id: 'gemini-2.5-flash',
+      name: 'Gemini 2.5 Flash',
+      badge: 'Chuyên sâu',
+      description: 'Xử lý ổn định cao, nhận diện cấu trúc lừa đảo và tin nhắn mẫu chuẩn xác.',
+      isDefault: false,
+    },
+  ];
+
+  const [activeModel, setActiveModel] = useState('gemini-3.5-flash');
+  const [supportedModels, setSupportedModels] = useState(defaultSupportedModels);
+  const [switchingModel, setSwitchingModel] = useState(false);
+  const [modelSuccessMsg, setModelSuccessMsg] = useState('');
+
+  const fetchActiveModel = async () => {
+    try {
+      const res = await API.get('/api/admin/active-model');
+      if (res.data?.activeModel) {
+        setActiveModel(res.data.activeModel);
+      }
+      if (Array.isArray(res.data?.supportedModels) && res.data.supportedModels.length > 0) {
+        setSupportedModels(res.data.supportedModels);
+      }
+    } catch (err) {
+      console.warn('Could not fetch active model:', err);
+    }
+  };
+
+  const handleSwitchModel = async (modelId) => {
+    if (modelId === activeModel || switchingModel) return;
+    setSwitchingModel(true);
+    setModelSuccessMsg('');
+    try {
+      const res = await API.post('/api/admin/active-model', { model: modelId });
+      setActiveModel(res.data.activeModel || modelId);
+      setModelSuccessMsg(`Đã chuyển đổi model toàn hệ thống sang ${res.data.activeModel || modelId} thành công (Realtime)!`);
+      setTimeout(() => setModelSuccessMsg(''), 4500);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Không thể chuyển đổi model AI.');
+    } finally {
+      setSwitchingModel(false);
+    }
+  };
+
   const fetchKeys = async () => {
     try {
       const res = await API.get('/api/admin/api-keys');
@@ -111,7 +171,10 @@ function ApiKeysTab() {
     }
   };
 
-  useEffect(() => { fetchKeys(); }, []);
+  useEffect(() => {
+    fetchKeys();
+    fetchActiveModel();
+  }, []);
 
   const handleToggle = async (id, current) => {
     try {
@@ -152,8 +215,96 @@ function ApiKeysTab() {
     }
   };
 
+  const displayModels = supportedModels.length > 0 ? supportedModels : defaultSupportedModels;
+
   return (
     <div className="space-y-6">
+      {/* ── Model Selection Realtime Card ── */}
+      <div className="bg-surface-container-low p-space-md rounded-xl border border-white/5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[22px]">neurology</span>
+            <div>
+              <h3 className="font-title-md text-sm font-bold text-on-surface">
+                Chuyển Đổi Model AI Hệ Thống (Realtime)
+              </h3>
+              <p className="text-[11px] text-on-surface-variant">
+                Lựa chọn phiên bản Gemini Flash (2.5 – 3.5). Không sử dụng dòng Lite. Thay đổi tức thì không cần khởi động lại.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10b981]"></span>
+            </span>
+            <span className="font-mono text-xs font-bold text-primary">
+              {activeModel}
+            </span>
+          </div>
+        </div>
+
+        {modelSuccessMsg && (
+          <div className="flex items-center gap-2 p-2.5 text-xs bg-[#10b981]/15 border border-[#10b981]/30 rounded-lg text-[#10b981]">
+            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            <span>{modelSuccessMsg}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {displayModels.map((m) => {
+            const isSelected = activeModel === m.id;
+            return (
+              <div
+                key={m.id}
+                onClick={() => handleSwitchModel(m.id)}
+                className={`relative p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                  isSelected
+                    ? 'bg-primary/10 border-primary shadow-[0_0_15px_rgba(255,180,168,0.15)] ring-1 ring-primary/40'
+                    : 'bg-surface-container border-white/5 hover:border-white/20 hover:bg-surface-container-high'
+                } ${switchingModel ? 'opacity-70 pointer-events-none' : ''}`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1.5">
+                    <span className="font-bold text-xs text-on-surface flex items-center gap-1.5">
+                      {m.name}
+                      {m.badge && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                          isSelected ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-on-surface-variant'
+                        }`}>
+                          {m.badge}
+                        </span>
+                      )}
+                    </span>
+                    <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-primary' : 'text-on-surface-variant/40'}`}>
+                      {isSelected ? 'radio_button_checked' : 'radio_button_unchecked'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-on-surface-variant leading-relaxed mb-3">
+                    {m.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px]">
+                  <span className="font-mono text-[10px] text-on-surface-variant">{m.id}</span>
+                  <button
+                    type="button"
+                    disabled={isSelected || switchingModel}
+                    className={`px-2 py-1 rounded text-[10px] font-bold transition-colors ${
+                      isSelected
+                        ? 'bg-primary/20 text-primary cursor-default'
+                        : 'bg-surface-container-highest text-on-surface hover:bg-primary hover:text-on-primary'
+                    }`}
+                  >
+                    {isSelected ? 'Đang hoạt động' : 'Kích hoạt'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Add key form */}
       <div className="bg-surface-container-low p-space-md rounded-xl border border-white/5">
         <div className="flex items-center gap-2 mb-3">
