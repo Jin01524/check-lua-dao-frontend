@@ -37,20 +37,36 @@ function TemplateModal({ template, onClose }) {
 
         {/* Body */}
         <div className="p-5 overflow-y-auto space-y-4">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-label-badge bg-primary-container/20 text-primary border border-primary/30 px-2 py-0.5 rounded uppercase">
-              {template.platform || 'SMS'}
-            </span>
-            <span className="font-label-badge bg-error-container/20 text-error border border-error/30 px-2 py-0.5 rounded">
-              {template.scam_type || 'Lừa đảo'}
-            </span>
-            <span className="font-label-badge px-2 py-0.5 rounded font-mono font-bold text-error bg-error-container/20 border border-error/30">
-              RỦI RO: {getConsistentThreatScore(template)}%
-            </span>
-            <span className="font-label-badge px-2 py-0.5 rounded text-on-surface-variant bg-surface-container border border-white/10">
-              MỤC TIÊU: <span className="text-primary font-semibold">{getAttackTarget(template)}</span>
-            </span>
-          </div>
+          {(() => {
+            const danger = getConsistentThreatScore(template);
+            const isSafe = template.scam_type === 'Tin nhắn an toàn / Bình thường' || danger < 40;
+            return (
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-label-badge bg-primary-container/20 text-primary border border-primary/30 px-2 py-0.5 rounded uppercase">
+                  {template.platform || 'SMS'}
+                </span>
+                {isSafe ? (
+                  <span className="font-label-badge bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30 px-2 py-0.5 rounded font-bold">
+                    MẪU AN TOÀN ĐỐI CHIẾU
+                  </span>
+                ) : (
+                  <span className="font-label-badge bg-error-container/20 text-error border border-error/30 px-2 py-0.5 rounded">
+                    {template.scam_type || 'Lừa đảo'}
+                  </span>
+                )}
+                <span className={`font-label-badge px-2 py-0.5 rounded font-mono font-bold border ${
+                  isSafe
+                    ? 'text-[#10b981] bg-[#10b981]/20 border-[#10b981]/30'
+                    : 'text-error bg-error-container/20 border-error/30'
+                }`}>
+                  {isSafe ? `AN TOÀN (${danger}%)` : `RỦI RO: ${danger}%`}
+                </span>
+                <span className="font-label-badge px-2 py-0.5 rounded text-on-surface-variant bg-surface-container border border-white/10">
+                  MỤC TIÊU: <span className="text-primary font-semibold">{getAttackTarget(template)}</span>
+                </span>
+              </div>
+            );
+          })()}
 
           {/* Raw / Extracted Messages */}
           <div>
@@ -416,6 +432,8 @@ function TemplatesTab() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'RISK' | 'SAFE' | 'PENDING' | 'APPROVED'
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchAll = async () => {
     try {
@@ -449,23 +467,95 @@ function TemplatesTab() {
     }
   };
 
+  const safeCount = templates.filter(t => t.scam_type === 'Tin nhắn an toàn / Bình thường' || getConsistentThreatScore(t) < 40).length;
+  const riskCount = templates.filter(t => t.scam_type !== 'Tin nhắn an toàn / Bình thường' && getConsistentThreatScore(t) >= 40).length;
+  const pendingCount = templates.filter(t => !t.is_approved && t.scam_type !== 'Tin nhắn an toàn / Bình thường').length;
+  const approvedCount = templates.filter(t => t.is_approved).length;
+
+  const filteredTemplates = templates.filter((tpl) => {
+    const danger = getConsistentThreatScore(tpl);
+    const isSafe = tpl.scam_type === 'Tin nhắn an toàn / Bình thường' || danger < 40;
+
+    // Filter by type
+    if (filterType === 'RISK' && isSafe) return false;
+    if (filterType === 'SAFE' && !isSafe) return false;
+    if (filterType === 'PENDING' && (tpl.is_approved || isSafe)) return false;
+    if (filterType === 'APPROVED' && !tpl.is_approved) return false;
+
+    // Search
+    if (searchQuery.trim()) {
+      const term = searchQuery.toLowerCase();
+      const matchTitle = tpl.title?.toLowerCase().includes(term);
+      const matchType = tpl.scam_type?.toLowerCase().includes(term);
+      const matchPlatform = tpl.platform?.toLowerCase().includes(term);
+      const matchAnalysis = tpl.analysis?.toLowerCase().includes(term);
+      if (!matchTitle && !matchType && !matchPlatform && !matchAnalysis) return false;
+    }
+
+    return true;
+  });
+
   return (
-    <div className="bg-surface-container-low p-space-md rounded-xl border border-white/5">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-surface-container-low p-space-md rounded-xl border border-white/5 space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
         <div>
-          <h3 className="font-title-md text-sm font-bold text-on-surface">
-            Bàn Kiểm Duyệt Mẫu Tin Nghi Vấn ({templates.length})
+          <h3 className="font-title-md text-sm font-bold text-on-surface flex items-center gap-2">
+            <span>Bàn Kiểm Duyệt Mẫu Tin Nghi Vấn ({templates.length})</span>
+            {safeCount > 0 && (
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#10b981]/20 text-[#10b981] font-semibold">
+                {safeCount} mẫu an toàn đối chiếu
+              </span>
+            )}
           </h3>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            Duyệt các mẫu tin nhắn người dùng gửi lên để bổ sung vào Kho dữ liệu cảnh báo quốc gia
+            Quản lý toàn bộ mẫu tin nhắn người dùng gửi lên gồm cả mẫu lừa đảo nghi vấn và mẫu an toàn dùng làm cơ sở đối chiếu cho AI.
           </p>
         </div>
+
+        {/* Search */}
+        <div className="relative min-w-[240px]">
+          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Tìm kiếm mẫu tin nhắn..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-surface-container text-xs text-on-surface pl-8 pr-3 py-1.5 rounded-lg border border-white/5 focus:outline-none focus:border-primary"
+          />
+        </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+        {[
+          { id: 'ALL', label: `Tất cả (${templates.length})` },
+          { id: 'RISK', label: `Mẫu rủi ro (${riskCount})` },
+          { id: 'SAFE', label: `Mẫu an toàn đối chiếu (${safeCount})`, icon: 'verified_user' },
+          { id: 'PENDING', label: `Chờ duyệt (${pendingCount})` },
+          { id: 'APPROVED', label: `Đã duyệt (${approvedCount})` },
+        ].map((f) => (
+          <button
+            key={f.id}
+            onClick={() => setFilterType(f.id)}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 ${
+              filterType === f.id
+                ? 'bg-primary-container text-on-primary-container shadow-sm'
+                : 'bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+            }`}
+          >
+            {f.icon && <span className="material-symbols-outlined text-[13px]">{f.icon}</span>}
+            <span>{f.label}</span>
+          </button>
+        ))}
       </div>
 
       {loading ? (
         <div className="p-8 text-center text-xs text-on-surface-variant">Đang tải danh sách mẫu...</div>
-      ) : templates.length === 0 ? (
-        <div className="p-8 text-center text-xs text-on-surface-variant">Chưa có mẫu nào cần kiểm duyệt.</div>
+      ) : filteredTemplates.length === 0 ? (
+        <div className="p-8 text-center text-xs text-on-surface-variant">Không tìm thấy mẫu tin nhắn nào phù hợp bộ lọc.</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-on-surface">
@@ -473,24 +563,34 @@ function TemplatesTab() {
               <tr className="border-b border-white/10 text-on-surface-variant font-label-badge">
                 <th className="py-2.5 px-3">TIÊU ĐỀ & THỦ ĐOẠN</th>
                 <th className="py-2.5 px-3">NỀN TẢNG</th>
-                <th className="py-2.5 px-3">RỦI RO</th>
+                <th className="py-2.5 px-3">PHÂN LOẠI / RỦI RO</th>
                 <th className="py-2.5 px-3">TRẠNG THÁI</th>
                 <th className="py-2.5 px-3 text-right">THAO TÁC</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {templates.map((tpl) => {
+              {filteredTemplates.map((tpl) => {
                 const id = tpl.id || tpl._id;
                 const isApproved = tpl.is_approved === true;
                 const danger = getConsistentThreatScore(tpl);
+                const isSafe = tpl.scam_type === 'Tin nhắn an toàn / Bình thường' || danger < 40;
 
                 return (
                   <tr key={id} className="hover:bg-surface-container/50 transition-colors">
                     <td className="py-3 px-3">
-                      <div className="font-semibold text-on-surface max-w-xs truncate">
-                        {tpl.title || tpl.scam_type || 'Mẫu tin nhắn'}
+                      <div className="font-semibold text-on-surface max-w-xs truncate flex items-center gap-1.5">
+                        {isSafe ? (
+                          <span className="material-symbols-outlined text-[15px] text-[#10b981] shrink-0" title="Mẫu an toàn đối chiếu">
+                            verified_user
+                          </span>
+                        ) : (
+                          <span className="material-symbols-outlined text-[15px] text-error shrink-0" title="Mẫu rủi ro lừa đảo">
+                            warning
+                          </span>
+                        )}
+                        <span className="truncate">{tpl.title || tpl.scam_type || 'Mẫu tin nhắn'}</span>
                       </div>
-                      <div className="text-[11px] text-on-surface-variant truncate max-w-xs">
+                      <div className="text-[11px] text-on-surface-variant truncate max-w-xs mt-0.5">
                         {tpl.content || tpl.analysis || 'Không có mô tả'}
                       </div>
                     </td>
@@ -501,20 +601,34 @@ function TemplatesTab() {
                       </span>
                     </td>
 
-                    <td className="py-3 px-3 font-semibold text-error font-mono">
-                      {danger}%
+                    <td className="py-3 px-3 font-semibold font-mono">
+                      {isSafe ? (
+                        <span className="text-[#10b981] bg-[#10b981]/15 px-2 py-0.5 rounded text-[11px] font-bold">
+                          AN TOÀN ({danger}%)
+                        </span>
+                      ) : (
+                        <span className="text-error bg-error/15 px-2 py-0.5 rounded text-[11px] font-bold">
+                          RỦI RO {danger}%
+                        </span>
+                      )}
                     </td>
 
                     <td className="py-3 px-3">
-                      <span
-                        className={`font-label-badge px-2 py-0.5 rounded text-[10px] font-bold ${
-                          isApproved
-                            ? 'bg-[#10b981]/20 text-[#10b981]'
-                            : 'bg-warning/20 text-warning'
-                        }`}
-                      >
-                        {isApproved ? 'ĐÃ DUYỆT' : 'CHỜ DUYỆT'}
-                      </span>
+                      {isSafe ? (
+                        <span className="font-label-badge px-2 py-0.5 rounded text-[10px] font-bold bg-[#10b981]/20 text-[#10b981]">
+                          MẪU ĐỐI CHIẾU
+                        </span>
+                      ) : (
+                        <span
+                          className={`font-label-badge px-2 py-0.5 rounded text-[10px] font-bold ${
+                            isApproved
+                              ? 'bg-[#10b981]/20 text-[#10b981]'
+                              : 'bg-warning/20 text-warning'
+                          }`}
+                        >
+                          {isApproved ? 'ĐÃ DUYỆT' : 'CHỜ DUYỆT'}
+                        </span>
+                      )}
                     </td>
 
                     <td className="py-3 px-3 text-right">
@@ -526,17 +640,19 @@ function TemplatesTab() {
                         >
                           <span className="material-symbols-outlined text-[16px]">visibility</span>
                         </button>
-                        <button
-                          onClick={() => handleApprove(id, isApproved)}
-                          className={`p-1 transition-colors ${
-                            isApproved ? 'hover:text-warning text-[#10b981]' : 'hover:text-[#10b981] text-warning'
-                          }`}
-                          title={isApproved ? 'Thu hồi duyệt' : 'Duyệt mẫu'}
-                        >
-                          <span className="material-symbols-outlined text-[16px]">
-                            {isApproved ? 'published_with_changes' : 'check_circle'}
-                          </span>
-                        </button>
+                        {!isSafe && (
+                          <button
+                            onClick={() => handleApprove(id, isApproved)}
+                            className={`p-1 transition-colors ${
+                              isApproved ? 'hover:text-warning text-[#10b981]' : 'hover:text-[#10b981] text-warning'
+                            }`}
+                            title={isApproved ? 'Thu hồi duyệt' : 'Duyệt mẫu'}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">
+                              {isApproved ? 'published_with_changes' : 'check_circle'}
+                            </span>
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(id)}
                           className="p-1 hover:text-error text-on-surface-variant transition-colors"

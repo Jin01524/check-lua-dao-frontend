@@ -20,6 +20,13 @@ export function normalizeThreatScore(score, fallback = 90) {
  */
 export function getConsistentThreatScore(tpl, fallback = 90) {
   if (!tpl) return fallback;
+  if (tpl.scam_type === 'Tin nhắn an toàn / Bình thường' || tpl.is_safe) {
+    const raw = tpl.confidence_score ?? tpl.danger_level ?? tpl.risk_score;
+    if (raw !== null && raw !== undefined && raw !== '' && !isNaN(Number(raw))) {
+      return normalizeThreatScore(raw, 0);
+    }
+    return 0;
+  }
   const raw = tpl.confidence_score ?? tpl.danger_level ?? tpl.risk_score;
   if (raw !== null && raw !== undefined && raw !== '' && !isNaN(Number(raw))) {
     return normalizeThreatScore(raw, fallback);
