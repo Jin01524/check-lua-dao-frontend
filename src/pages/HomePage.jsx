@@ -219,7 +219,7 @@ export default function HomePage() {
                     Nội dung tin nhắn / URL cần kiểm tra:
                   </label>
                   <span className="font-label-caption text-label-caption text-secondary">
-                    {ocrResult ? 'Đã trích xuất tự động' : 'Tùy chọn'}
+                    Tùy chọn
                   </span>
                 </div>
                 <div className="relative">
