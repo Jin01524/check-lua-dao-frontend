@@ -50,3 +50,58 @@
 .animate-cyber-glow {
   animation: cyber-pulse 3s infinite ease-in-out;
 }
+
+.scan-loader {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  isolation: isolate;
+}
+
+.scan-loader-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(180, 197, 255, 0.25);
+  border-radius: 50%;
+}
+
+.scan-loader-ring-outer { animation: scan-pulse 2.4s ease-out infinite; }
+.scan-loader-ring-inner { inset: 15px; animation: scan-pulse 2.4s ease-out 0.8s infinite; }
+.scan-loader-sweep {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg 265deg, rgba(123, 208, 255, 0.42) 335deg, transparent 360deg);
+  animation: scan-rotate 2.8s linear infinite;
+  z-index: -1;
+}
+.scan-loader-icon { color: #b4c5ff; font-size: 38px; }
+.scan-loader-track {
+  height: 4px;
+  overflow: hidden;
+  background: rgba(180, 197, 255, 0.14);
+}
+.scan-loader-track span {
+  display: block;
+  width: 38%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #7bd0ff, #b4c5ff);
+  animation: scan-slide 1.8s ease-in-out infinite;
+}
+
+@keyframes scan-pulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+@keyframes scan-rotate { to { transform: rotate(360deg); } }
+@keyframes scan-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(270%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan-loader-ring, .scan-loader-sweep, .scan-loader-track span { animation: none; }
+}

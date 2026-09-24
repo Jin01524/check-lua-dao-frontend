@@ -10,6 +10,7 @@ export default function HomePage() {
   const [platform, setPlatform] = useState('sms');
   const [additionalText, setAdditionalText] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
+  const [waitSeconds, setWaitSeconds] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({
@@ -37,6 +38,12 @@ export default function HomePage() {
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
+
+  useEffect(() => {
+    if (!analyzing) return undefined;
+    const timer = window.setInterval(() => setWaitSeconds((seconds) => seconds + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [analyzing]);
 
   const handleSubmit = async () => {
     setError('');
@@ -80,6 +87,7 @@ export default function HomePage() {
       return;
     }
 
+    setWaitSeconds(0);
     setAnalyzing(true);
     setResult(null);
 
@@ -284,17 +292,24 @@ export default function HomePage() {
           <div className="lg:col-span-5 flex flex-col gap-space-lg sticky top-24">
             {analyzing ? (
               /* Loading State */
-              <div className="bg-surface-container rounded-none p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-4 min-h-[420px]">
-                <div>
-                  <div className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                    Đang xem xét...
-                  </div>
+              <div className="bg-surface-container rounded-none p-space-xl shadow-xl border border-white/10 flex flex-col items-center justify-center text-center gap-5 min-h-[420px]" role="status" aria-live="polite">
+                <div className="scan-loader" aria-hidden="true">
+                  <span className="scan-loader-ring scan-loader-ring-outer" />
+                  <span className="scan-loader-ring scan-loader-ring-inner" />
+                  <span className="scan-loader-sweep" />
+                  <span className="material-symbols-outlined scan-loader-icon">document_scanner</span>
                 </div>
-                <div className="flex flex-col gap-1 w-full max-w-xs text-xs font-label-badge text-secondary mt-2">
-                  <div className="flex justify-between">
-                    <span>Threat Intelligence:</span>
-                    <span className="text-primary animate-pulse">Đang đối chiếu...</span>
+                <div className="space-y-2">
+                  <div className="font-headline-sm text-headline-sm font-bold text-on-surface">
+                    Đang đọc và phân tích nội dung
                   </div>
+                  <p className="text-sm text-on-surface-variant max-w-xs">
+                    Hệ thống đang kiểm tra dấu hiệu rủi ro trong tin nhắn của bạn.
+                  </p>
+                </div>
+                <div className="w-full max-w-xs">
+                  <div className="scan-loader-track" aria-hidden="true"><span /></div>
+                  <p className="mt-3 text-xs text-secondary" aria-hidden="true">Đã chờ {waitSeconds} giây</p>
                 </div>
               </div>
             ) : result ? (
