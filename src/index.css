@@ -6,8 +6,8 @@
   html, body {
     margin: 0;
     padding: 0;
-    background-color: #0f131c;
-    color: #dfe2ef;
+    background-color: #f5f8fc;
+    color: #17243a;
     font-family: 'Inter', sans-serif;
   }
   
@@ -31,15 +31,23 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f131c;
+  background: #f5f8fc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #31353f;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #434655;
+  background: #94a3b8;
 }
+
+/* Giữ đường viền nhìn rõ trên các bề mặt trắng của bảng màu sáng. */
+.border-white\/5 { border-color: #e2e8f0; }
+.border-white\/10 { border-color: #cbd5e1; }
+.border-white\/20 { border-color: #b8c5d5; }
+.border-white\/30 { border-color: #94a3b8; }
+.hover\:border-white\/10:hover { border-color: #cbd5e1; }
+.hover\:border-white\/20:hover { border-color: #b8c5d5; }
 
 /* Subtle glow animations */
 @keyframes cyber-pulse {
@@ -63,7 +71,7 @@
 .scan-loader-ring {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(180, 197, 255, 0.25);
+  border: 1px solid rgba(29, 78, 216, 0.25);
   border-radius: 50%;
 }
 
@@ -73,21 +81,21 @@
   position: absolute;
   inset: 6px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, transparent 0deg 265deg, rgba(123, 208, 255, 0.42) 335deg, transparent 360deg);
+  background: conic-gradient(from 0deg, transparent 0deg 265deg, rgba(29, 78, 216, 0.3) 335deg, transparent 360deg);
   animation: scan-rotate 2.8s linear infinite;
   z-index: -1;
 }
-.scan-loader-icon { color: #b4c5ff; font-size: 38px; }
+.scan-loader-icon { color: #1d4ed8; font-size: 38px; }
 .scan-loader-track {
   height: 4px;
   overflow: hidden;
-  background: rgba(180, 197, 255, 0.14);
+  background: rgba(29, 78, 216, 0.14);
 }
 .scan-loader-track span {
   display: block;
   width: 38%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #7bd0ff, #b4c5ff);
+  background: linear-gradient(90deg, transparent, #60a5fa, #1d4ed8);
   animation: scan-slide 1.8s ease-in-out infinite;
 }
 

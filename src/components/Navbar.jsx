@@ -12,7 +12,7 @@ export default function Navbar() {
   const close = () => setOpen(false);
 
   return (
-    <header className="sticky top-0 w-full z-50 bg-[#0a0e17]/85 backdrop-blur-md border-b border-white/10 shadow-sm">
+    <header className="sticky top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-white/10 shadow-sm">
       <div className="h-14 max-w-[1280px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Left: Brand */}
         <div className="flex items-center gap-6">
@@ -160,7 +160,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {open && (
-        <div className="lg:hidden border-t border-white/10 bg-[#0a0e17] px-4 py-2 space-y-1 animate-fadeIn">
+        <div className="lg:hidden border-t border-white/10 bg-white px-4 py-2 space-y-1 animate-fadeIn">
           <Link
             to="/"
             reloadDocument

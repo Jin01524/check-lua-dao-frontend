@@ -82,12 +82,12 @@ export default function TemplatesPage() {
 
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Đã kiểm định</span>
-                <span className="font-headline-sm text-headline-sm text-[#10b981] font-bold">{verifiedCount}</span>
+                <span className="font-headline-sm text-headline-sm text-emerald-700 font-bold">{verifiedCount}</span>
               </div>
 
               <div className="px-space-sm py-space-2xs bg-surface-container rounded-none">
                 <span className="font-label-caption text-label-caption text-on-surface-variant block">Chưa kiểm định</span>
-                <span className="font-headline-sm text-headline-sm text-amber-400 font-bold">{unverifiedCount}</span>
+                <span className="font-headline-sm text-headline-sm text-amber-700 font-bold">{unverifiedCount}</span>
               </div>
             </div>
           </div>
@@ -233,12 +233,12 @@ export default function TemplatesPage() {
 
                         {/* Verification Status Badge */}
                         {tpl.is_approved ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/25 px-1.5 py-0.5">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-[#10b981]/10 border border-[#10b981]/25 px-1.5 py-0.5">
                             <span className="material-symbols-outlined text-[13px]">verified</span>
                             <span>Đã kiểm định thông tin</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 bg-amber-400/10 border border-amber-400/25 px-1.5 py-0.5">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-400/10 border border-amber-400/25 px-1.5 py-0.5">
                             <span className="material-symbols-outlined text-[13px]">schedule</span>
                             <span>Chưa được kiểm định</span>
                           </span>

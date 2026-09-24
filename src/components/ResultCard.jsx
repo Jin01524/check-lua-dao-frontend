@@ -29,37 +29,37 @@ export default function ResultCard({ result }) {
     none: {
       label: 'Kênh chiếm đoạt: Không phát hiện (An toàn)',
       sub: 'Không có liên kết lạ, không yêu cầu OTP, mật khẩu hay chuyển tiền',
-      badgeClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+      badgeClass: 'text-emerald-700 bg-emerald-500/10 border-emerald-500/30',
       icon: 'verified_user',
     },
     phishing_link: {
       label: 'Kênh chiếm đoạt: Liên kết giả mạo (Phishing Link)',
       sub: 'Chứa website lạ hoặc tên miền rút gọn nhằm đánh cắp thông tin',
-      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      badgeClass: 'text-rose-700 bg-rose-500/10 border-rose-500/30',
       icon: 'link_off',
     },
     otp_theft: {
       label: 'Kênh chiếm đoạt: Đánh cắp mã OTP / Mật khẩu',
       sub: 'Dụ dỗ cung cấp mã xác thực giao dịch hoặc mật khẩu ngân hàng',
-      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      badgeClass: 'text-rose-700 bg-rose-500/10 border-rose-500/30',
       icon: 'lock_reset',
     },
     money_transfer: {
       label: 'Kênh chiếm đoạt: Yêu cầu chuyển tiền / Nộp phí',
       sub: 'Hối thúc chuyển khoản vào số tài khoản cá nhân hoặc nạp tiền giữ chỗ',
-      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      badgeClass: 'text-rose-700 bg-rose-500/10 border-rose-500/30',
       icon: 'payments',
     },
     apk_malware: {
       label: 'Kênh chiếm đoạt: Mã độc / Tải ứng dụng ngoài (.APK)',
       sub: 'Yêu cầu tải app giả danh cổng dịch vụ công hoặc ngân hàng',
-      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      badgeClass: 'text-rose-700 bg-rose-500/10 border-rose-500/30',
       icon: 'phone_android',
     },
     unauthorized_contact: {
       label: 'Kênh chiếm đoạt: Số lạ / Liên hệ không chính thức',
       sub: 'Yêu cầu gọi số hotline giả mạo hoặc nhắn qua Zalo/Telegram cá nhân',
-      badgeClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+      badgeClass: 'text-amber-700 bg-amber-500/10 border-amber-500/30',
       icon: 'contact_phone',
     },
   };
@@ -117,7 +117,7 @@ export default function ResultCard({ result }) {
           ></span>
           <span
             className={`font-label-badge text-label-badge uppercase tracking-wider ${
-              isHighRisk ? 'text-error' : isMediumRisk ? 'text-warning' : 'text-[#10b981]'
+              isHighRisk ? 'text-error' : isMediumRisk ? 'text-warning' : 'text-emerald-700'
             }`}
           >
             KẾT QUẢ PHÂN TÍCH SỐ
@@ -133,12 +133,12 @@ export default function ResultCard({ result }) {
         className={`p-space-md rounded-none shadow-md flex flex-col gap-space-2xs border ${
           isScam
             ? 'bg-error-container/40 border-error/30 text-on-error-container'
-            : 'bg-[#10b981]/15 border-[#10b981]/30 text-white'
+            : 'bg-[#10b981]/15 border-[#10b981]/30 text-on-surface'
         }`}
       >
         <div className="flex items-center justify-between gap-space-xs">
           <div className="flex items-center gap-2">
-            <span className={`material-symbols-outlined text-[28px] ${isScam ? 'text-error' : 'text-[#10b981]'}`}>
+            <span className={`material-symbols-outlined text-[28px] ${isScam ? 'text-error' : 'text-emerald-700'}`}>
               {isScam ? 'warning' : 'verified_user'}
             </span>
             <span className="font-headline-sm text-headline-sm font-bold uppercase tracking-tight">
@@ -209,7 +209,7 @@ export default function ResultCard({ result }) {
           </div>
 
           {showDebate && (
-            <div className="p-3.5 space-y-3 bg-black/20 text-xs">
+            <div className="p-3.5 space-y-3 bg-slate-50 text-xs">
               {/* Agent 1 */}
               <div className="p-3 bg-error-container/10 border-l-2 border-error/70 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
@@ -226,7 +226,7 @@ export default function ResultCard({ result }) {
               {/* Agent 2 */}
               <div className="p-3 bg-emerald-500/10 border-l-2 border-emerald-500/70 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono font-bold text-emerald-400 uppercase flex items-center gap-1.5 text-[11px]">
+                  <span className="font-mono font-bold text-emerald-700 uppercase flex items-center gap-1.5 text-[11px]">
                     <span className="material-symbols-outlined text-[15px]">policy</span>
                     AI 2: Nhận định an toàn
                   </span>
@@ -282,22 +282,22 @@ export default function ResultCard({ result }) {
       {ocrExtractedText && (
         <div className="p-space-sm bg-surface-container-low rounded-none border border-emerald-500/20">
           <div className="flex items-center justify-between mb-1.5">
-            <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-emerald-400 uppercase">
+            <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-emerald-700 uppercase">
               <span className="material-symbols-outlined text-[16px]">document_scanner</span>
               <span>Văn bản nhận diện từ ảnh</span>
             </div>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 uppercase">
+            <span className="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-500/20 text-emerald-700 uppercase">
               OCR cục bộ
             </span>
           </div>
-          <div className="max-h-36 overflow-y-auto p-2 bg-black/25 border border-white/5 font-code-telemetry text-[11px] text-on-surface-variant leading-relaxed whitespace-pre-line">
+          <div className="max-h-36 overflow-y-auto p-2 bg-slate-50 border border-white/5 font-code-telemetry text-[11px] text-on-surface-variant leading-relaxed whitespace-pre-line">
             {ocrExtractedText}
           </div>
         </div>
       )}
 
       {/* Extracted Chat Messages if any */}
-      {messages.length > 0 && (
+      {!ocrUsed && messages.length > 0 && (
         <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
           <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-secondary uppercase">
             <span className="material-symbols-outlined text-[16px]">chat</span>
@@ -337,7 +337,7 @@ export default function ResultCard({ result }) {
 
         <a
           href="tel:18001031"
-          className="py-2 px-3 bg-error-container hover:bg-error text-white rounded-none font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+          className="py-2 px-3 bg-error-container hover:bg-error text-error hover:text-white rounded-none font-title-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
           title="Tổng đài An toàn mạng quốc gia"
         >
           <span className="material-symbols-outlined text-[16px]">e911_emergency</span>

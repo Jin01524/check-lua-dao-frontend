@@ -46,7 +46,7 @@ function TemplateModal({ template, onClose }) {
                   {template.platform || 'SMS'}
                 </span>
                 {isSafe ? (
-                  <span className="font-label-badge bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30 px-2 py-0.5 rounded font-bold">
+                  <span className="font-label-badge bg-[#10b981]/20 text-emerald-700 border border-[#10b981]/30 px-2 py-0.5 rounded font-bold">
                     MẪU AN TOÀN ĐỐI CHIẾU
                   </span>
                 ) : (
@@ -56,7 +56,7 @@ function TemplateModal({ template, onClose }) {
                 )}
                 <span className={`font-label-badge px-2 py-0.5 rounded font-mono font-bold border ${
                   isSafe
-                    ? 'text-[#10b981] bg-[#10b981]/20 border-[#10b981]/30'
+                    ? 'text-emerald-700 bg-[#10b981]/20 border-[#10b981]/30'
                     : 'text-error bg-error-container/20 border-error/30'
                 }`}>
                   {isSafe ? `AN TOÀN (${danger}%)` : `RỦI RO: ${danger}%`}
@@ -261,7 +261,7 @@ function ApiKeysTab() {
         </div>
 
         {modelSuccessMsg && (
-          <div className="flex items-center gap-2 p-2.5 text-xs bg-[#10b981]/15 border border-[#10b981]/30 rounded-lg text-[#10b981]">
+          <div className="flex items-center gap-2 p-2.5 text-xs bg-[#10b981]/15 border border-[#10b981]/30 rounded-lg text-emerald-700">
             <span className="material-symbols-outlined text-[18px]">check_circle</span>
             <span>{modelSuccessMsg}</span>
           </div>
@@ -404,7 +404,7 @@ function ApiKeysTab() {
                     <button
                       onClick={() => handleToggle(id, isActive)}
                       className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors ${
-                        isActive ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-secondary/20 text-secondary'
+                        isActive ? 'bg-[#10b981]/20 text-emerald-700' : 'bg-secondary/20 text-secondary'
                       }`}
                     >
                       {isActive ? 'Kích hoạt' : 'Tạm tắt'}
@@ -503,7 +503,7 @@ function TemplatesTab() {
           <h3 className="font-title-md text-sm font-bold text-on-surface flex items-center gap-2">
             <span>Bàn Kiểm Duyệt Mẫu Tin Nghi Vấn ({templates.length})</span>
             {safeCount > 0 && (
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#10b981]/20 text-[#10b981] font-semibold">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#10b981]/20 text-emerald-700 font-semibold">
                 {safeCount} mẫu an toàn đối chiếu
               </span>
             )}
@@ -580,7 +580,7 @@ function TemplatesTab() {
                     <td className="py-3 px-3">
                       <div className="font-semibold text-on-surface max-w-xs truncate flex items-center gap-1.5">
                         {isSafe ? (
-                          <span className="material-symbols-outlined text-[15px] text-[#10b981] shrink-0" title="Mẫu an toàn đối chiếu">
+                          <span className="material-symbols-outlined text-[15px] text-emerald-700 shrink-0" title="Mẫu an toàn đối chiếu">
                             verified_user
                           </span>
                         ) : (
@@ -603,7 +603,7 @@ function TemplatesTab() {
 
                     <td className="py-3 px-3 font-semibold font-mono">
                       {isSafe ? (
-                        <span className="text-[#10b981] bg-[#10b981]/15 px-2 py-0.5 rounded text-[11px] font-bold">
+                        <span className="text-emerald-700 bg-[#10b981]/15 px-2 py-0.5 rounded text-[11px] font-bold">
                           AN TOÀN ({danger}%)
                         </span>
                       ) : (
@@ -615,14 +615,14 @@ function TemplatesTab() {
 
                     <td className="py-3 px-3">
                       {isSafe ? (
-                        <span className="font-label-badge px-2 py-0.5 rounded text-[10px] font-bold bg-[#10b981]/20 text-[#10b981]">
+                        <span className="font-label-badge px-2 py-0.5 rounded text-[10px] font-bold bg-[#10b981]/20 text-emerald-700">
                           MẪU ĐỐI CHIẾU
                         </span>
                       ) : (
                         <span
                           className={`font-label-badge px-2 py-0.5 rounded text-[10px] font-bold ${
                             isApproved
-                              ? 'bg-[#10b981]/20 text-[#10b981]'
+                              ? 'bg-[#10b981]/20 text-emerald-700'
                               : 'bg-warning/20 text-warning'
                           }`}
                         >
@@ -644,7 +644,7 @@ function TemplatesTab() {
                           <button
                             onClick={() => handleApprove(id, isApproved)}
                             className={`p-1 transition-colors ${
-                              isApproved ? 'hover:text-warning text-[#10b981]' : 'hover:text-[#10b981] text-warning'
+                              isApproved ? 'hover:text-warning text-emerald-700' : 'hover:text-emerald-700 text-warning'
                             }`}
                             title={isApproved ? 'Thu hồi duyệt' : 'Duyệt mẫu'}
                           >
@@ -981,7 +981,7 @@ function UsersTab() {
         )}
 
         {success && (
-          <div className="p-3 bg-[#10b981]/20 border border-[#10b981]/30 rounded-none text-[#10b981] text-xs flex items-center gap-2">
+          <div className="p-3 bg-[#10b981]/20 border border-[#10b981]/30 rounded-none text-emerald-700 text-xs flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">check_circle</span>
             <span>{success}</span>
           </div>
@@ -1151,7 +1151,7 @@ function UsersTab() {
                         <span
                           className={`inline-flex items-center gap-1 font-label-badge px-2 py-0.5 rounded-none text-[10px] font-bold ${
                             isActive
-                              ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30'
+                              ? 'bg-[#10b981]/20 text-emerald-700 border border-[#10b981]/30'
                               : 'bg-error-container/20 text-error border border-error/30'
                           }`}
                         >
@@ -1191,7 +1191,7 @@ function UsersTab() {
                               className={`p-1.5 transition-colors rounded-none border border-transparent hover:border-white/10 ${
                                 isActive
                                   ? 'text-on-surface-variant hover:text-warning'
-                                  : 'text-error hover:text-[#10b981]'
+                                  : 'text-error hover:text-emerald-700'
                               }`}
                               title={isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
                             >

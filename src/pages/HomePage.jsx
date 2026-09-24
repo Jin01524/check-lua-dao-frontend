@@ -148,7 +148,7 @@ export default function HomePage() {
 
           <h1 className="font-display-hero text-3xl sm:text-4xl lg:text-display-hero text-on-surface tracking-tight mb-space-sm">
             AI Kiểm Tra & Nhận Diện{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-tertiary to-primary-fixed">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-tertiary to-primary">
               Lừa Đảo Trực Tuyến
             </span>
           </h1>
@@ -214,7 +214,7 @@ export default function HomePage() {
                     <span className="material-symbols-outlined text-[16px]">document_scanner</span>
                     <span>Ảnh được OCR trên máy chủ; chỉ văn bản được gửi tới AI</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-700 font-bold uppercase">
                     OCR cục bộ
                   </span>
                 </div>
@@ -268,7 +268,7 @@ export default function HomePage() {
                   onClick={handleSubmit}
                   className={`w-full py-space-sm px-space-md font-title-md text-title-md rounded-none transition-all flex items-center justify-center gap-space-xs group ${
                     analyzing
-                      ? 'bg-primary-container/50 text-white cursor-wait'
+                      ? 'bg-primary-container text-on-primary-container opacity-70 cursor-wait'
                       : 'bg-primary-container hover:bg-inverse-primary text-on-primary-container shadow-[0_0_24px_-4px_rgba(37,99,235,0.65)] active:scale-[0.99]'
                   }`}
                 >
