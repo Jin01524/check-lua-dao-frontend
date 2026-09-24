@@ -1,13 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import ImageUploader from '../components/ImageUploader';
-import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
   const [files, setFiles] = useState([]);
-  const [platform, setPlatform] = useState('sms');
   const [additionalText, setAdditionalText] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [waitSeconds, setWaitSeconds] = useState(0);
@@ -82,11 +80,6 @@ export default function HomePage() {
       setError('Vui lòng tải lên ít nhất 1 ảnh chụp màn hình hoặc dán nội dung tin nhắn nghi vấn.');
       return;
     }
-    if (!platform) {
-      setError('Vui lòng chọn nền tảng bạn nhận được tin nhắn.');
-      return;
-    }
-
     setWaitSeconds(0);
     setAnalyzing(true);
     setResult(null);
@@ -97,7 +90,7 @@ export default function HomePage() {
         formData.append('images', item.compressed, `image_${idx}.jpg`);
       });
 
-      formData.append('platform', platform);
+      formData.append('platform', 'sms');
       if (additionalText.trim()) {
         formData.append('text', additionalText.trim());
       }
@@ -200,9 +193,6 @@ export default function HomePage() {
                   </span>
                 </div>
               </div>
-
-              {/* Platform Selector */}
-              <PlatformSelector value={platform} onChange={setPlatform} />
 
               {/* Image Uploader */}
               <ImageUploader files={files} onChange={setFiles} />
