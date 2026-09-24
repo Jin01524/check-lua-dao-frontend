@@ -9,7 +9,6 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL'); // 'ALL' | 'VERIFIED' | 'UNVERIFIED'
   const navigate = useNavigate();
 
@@ -39,16 +38,12 @@ export default function TemplatesPage() {
       tpl.scam_type?.toLowerCase().includes(search.toLowerCase()) ||
       tpl.platform?.toLowerCase().includes(search.toLowerCase());
 
-    const matchesPlatform =
-      selectedPlatform === 'ALL' ||
-      tpl.platform?.toLowerCase() === selectedPlatform.toLowerCase();
-
     const matchesStatus =
       selectedStatus === 'ALL' ||
       (selectedStatus === 'VERIFIED' && Boolean(tpl.is_approved)) ||
       (selectedStatus === 'UNVERIFIED' && !tpl.is_approved);
 
-    return matchesSearch && matchesPlatform && matchesStatus;
+    return matchesSearch && matchesStatus;
   });
 
   const verifiedCount = templates.filter((t) => t.is_approved).length;
@@ -116,7 +111,7 @@ export default function TemplatesPage() {
               )}
             </div>
 
-            {/* Status & Platform Filter Pills */}
+            {/* Status Filter Pills */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-white/5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-label-badge text-on-surface-variant mr-1">TRẠNG THÁI:</span>
@@ -140,28 +135,6 @@ export default function TemplatesPage() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-label-badge text-on-surface-variant mr-1">NỀN TẢNG:</span>
-                {[
-                  { id: 'ALL', label: 'Tất cả' },
-                  { id: 'sms', label: 'SMS' },
-                  { id: 'zalo', label: 'Zalo' },
-                  { id: 'facebook', label: 'Facebook' },
-                  { id: 'telegram', label: 'Telegram' },
-                ].map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedPlatform(p.id)}
-                    className={`px-2.5 py-1.5 rounded-none text-xs font-title-md transition-colors ${
-                      selectedPlatform === p.id
-                        ? 'bg-secondary/30 text-primary font-semibold border border-primary/40'
-                        : 'bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </section>
@@ -200,7 +173,7 @@ export default function TemplatesPage() {
               Không tìm thấy mẫu tin nhắn phù hợp
             </div>
             <p className="font-body-sm text-on-surface-variant mt-1 max-w-sm">
-              Thử thay đổi từ khóa tìm kiếm hoặc chọn bộ lọc nền tảng khác.
+              Thử thay đổi từ khóa tìm kiếm hoặc trạng thái kiểm định.
             </p>
           </div>
         )}
