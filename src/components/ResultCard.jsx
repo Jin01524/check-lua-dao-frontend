@@ -19,6 +19,8 @@ export default function ResultCard({ result }) {
     exfiltrationVector = 'none',
     multiAgentDebate,
     attackTarget,
+    ocrUsed,
+    ocrExtractedText,
   } = result;
 
   const [showDebate, setShowDebate] = useState(true);
@@ -285,6 +287,24 @@ export default function ResultCard({ result }) {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Google Cloud Vision OCR Raw Text Extraction */}
+      {ocrExtractedText && (
+        <div className="p-space-sm bg-surface-container-low rounded-none border border-emerald-500/20">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5 font-label-badge text-[11px] text-emerald-400 uppercase">
+              <span className="material-symbols-outlined text-[16px]">document_scanner</span>
+              <span>Văn bản bóc tách bởi Google Cloud Vision OCR</span>
+            </div>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 uppercase">
+              Độ chính xác cao
+            </span>
+          </div>
+          <div className="max-h-36 overflow-y-auto p-2 bg-black/25 border border-white/5 font-code-telemetry text-[11px] text-on-surface-variant leading-relaxed whitespace-pre-line">
+            {ocrExtractedText}
           </div>
         </div>
       )}

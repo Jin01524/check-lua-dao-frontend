@@ -4,7 +4,6 @@ import PlatformSelector from '../components/PlatformSelector';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
 import { useAuth } from '../context/AuthContext';
-import { extractTextFromImages } from '../services/ocrService';
 
 export default function HomePage() {
   const [files, setFiles] = useState([]);
@@ -13,10 +12,6 @@ export default function HomePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [isOcrRunning, setIsOcrRunning] = useState(false);
-  const [ocrProgress, setOcrProgress] = useState(0);
-  const [ocrResult, setOcrResult] = useState(null);
-  const [sendMode, setSendMode] = useState('fast_text'); // 'fast_text' | 'multimodal'
   const [stats, setStats] = useState({
     totalScans: 9,
     warnedScans: 9,
@@ -42,41 +37,6 @@ export default function HomePage() {
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
-
-  // Trích xuất văn bản trực tiếp trên trình duyệt (Edge OCR)
-  const runEdgeOCR = async (targetFiles) => {
-    const list = targetFiles || files;
-    if (!list || list.length === 0) return;
-    setIsOcrRunning(true);
-    setOcrProgress(5);
-    try {
-      const res = await extractTextFromImages(list, (p) => {
-        setOcrProgress(p.progress);
-      });
-      if (res && res.text) {
-        setOcrResult(res);
-        setAdditionalText((prev) => {
-          if (!prev.trim()) return res.text;
-          if (prev.includes(res.text)) return prev;
-          return `${prev}\n\n${res.text}`;
-        });
-      }
-    } catch (err) {
-      console.warn('[HomePage] Edge OCR error:', err);
-    } finally {
-      setIsOcrRunning(false);
-      setOcrProgress(0);
-    }
-  };
-
-  const handleFilesChange = (newFiles) => {
-    setFiles(newFiles);
-    if (newFiles.length > 0) {
-      runEdgeOCR(newFiles);
-    } else {
-      setOcrResult(null);
-    }
-  };
 
   const handleSubmit = async () => {
     setError('');
@@ -125,13 +85,9 @@ export default function HomePage() {
 
     try {
       const formData = new FormData();
-
-      // Nếu người dùng chọn gửi kèm ảnh hoặc chưa có text thì mới upload file ảnh
-      if (sendMode === 'multimodal' || !additionalText.trim()) {
-        files.forEach((item, idx) => {
-          formData.append('images', item.compressed, `image_${idx}.jpg`);
-        });
-      }
+      files.forEach((item, idx) => {
+        formData.append('images', item.compressed, `image_${idx}.jpg`);
+      });
 
       formData.append('platform', platform);
       if (additionalText.trim()) {
@@ -144,7 +100,6 @@ export default function HomePage() {
       });
       setFiles([]);
       setAdditionalText('');
-      setOcrResult(null);
 
       const response = await API.post('/api/check', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -242,92 +197,18 @@ export default function HomePage() {
               <PlatformSelector value={platform} onChange={setPlatform} />
 
               {/* Image Uploader */}
-              <ImageUploader files={files} onChange={handleFilesChange} />
+              <ImageUploader files={files} onChange={setFiles} />
 
-              {/* Edge OCR In-Flight Progress Bar */}
-              {isOcrRunning && (
-                <div className="p-3 bg-surface-container-high border border-primary/30 flex flex-col gap-2 animate-fadeIn">
-                  <div className="flex items-center justify-between text-xs text-primary font-mono">
-                    <span className="flex items-center gap-1.5 font-bold">
-                      <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-                      Đang trích xuất văn bản từ ảnh (Edge OCR WebAssembly)...
-                    </span>
-                    <span>{ocrProgress}%</span>
+              {/* Google Cloud Vision OCR Telemetry Notice */}
+              {files.length > 0 && (
+                <div className="p-2.5 bg-primary/10 border border-primary/20 flex items-center justify-between text-xs text-primary font-mono animate-fadeIn">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">document_scanner</span>
+                    <span>Hệ thống tự động kích hoạt Google Cloud Vision OCR trích xuất nguyên văn</span>
                   </div>
-                  <div className="w-full bg-surface-container-lowest h-1.5 overflow-hidden">
-                    <div
-                      className="bg-primary h-full transition-all duration-300"
-                      style={{ width: `${ocrProgress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-[11px] text-on-surface-variant">
-                    Xử lý 100% trên trình duyệt của bạn (Edge Computing) để tiết kiệm token và tăng tốc kiểm tra.
-                  </p>
-                </div>
-              )}
-
-              {/* Edge OCR Results & Mode Selector */}
-              {ocrResult && ocrResult.text && !isOcrRunning && (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 flex flex-col gap-2.5 animate-fadeIn">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-xs font-bold">
-                      <span className="material-symbols-outlined text-[16px]">verified</span>
-                      <span>Đã trích xuất văn bản qua Edge OCR (Độ tin cậy: {ocrResult.confidence}%)</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => runEdgeOCR()}
-                      className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-mono cursor-pointer"
-                    >
-                      Trích xuất lại
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-on-surface-variant leading-relaxed">
-                    Văn bản đã tự động điền vào ô bên dưới. Bạn có thể kiểm tra hoặc sửa lỗi trước khi gửi để AI phân tích chuẩn xác nhất.
-                  </p>
-                  
-                  {/* Mode Selector Buttons */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1.5 border-t border-emerald-500/20">
-                    <span className="text-[11px] text-secondary font-mono">Chế độ gửi:</span>
-                    <button
-                      type="button"
-                      onClick={() => setSendMode('fast_text')}
-                      className={`px-2.5 py-1 text-xs font-mono font-semibold flex items-center gap-1 transition-all cursor-pointer ${
-                        sendMode === 'fast_text'
-                          ? 'bg-emerald-500 text-black shadow-sm'
-                          : 'bg-white/5 text-on-surface-variant hover:text-on-surface border border-white/10'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[14px]">bolt</span>
-                      <span>Siêu tốc (Chỉ gửi text - Tiết kiệm 90% chi phí)</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSendMode('multimodal')}
-                      className={`px-2.5 py-1 text-xs font-mono font-semibold flex items-center gap-1 transition-all cursor-pointer ${
-                        sendMode === 'multimodal'
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-white/5 text-on-surface-variant hover:text-on-surface border border-white/10'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[14px]">image</span>
-                      <span>Đính kèm cả ảnh (Multimodal Vision)</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Manual OCR trigger if user uploaded images but OCR hasn't run */}
-              {files.length > 0 && !ocrResult && !isOcrRunning && (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => runEdgeOCR()}
-                    className="text-xs font-mono text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">document_scanner</span>
-                    <span>Trích xuất văn bản từ ảnh (Edge OCR)</span>
-                  </button>
+                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+                    Độ chính xác cao
+                  </span>
                 </div>
               )}
 
