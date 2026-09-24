@@ -120,10 +120,6 @@ export default function ResultCard({ result }) {
           >
             KẾT QUẢ PHÂN TÍCH SỐ
           </span>
-          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider bg-white/5 text-primary border border-primary/20">
-            <span className="material-symbols-outlined text-[12px]">hub</span>
-            Multi-Agent Consensus
-          </span>
         </div>
         <span className="font-code-telemetry text-code-telemetry text-secondary">
           MÃ ĐƠN: {caseId}
@@ -212,15 +208,12 @@ export default function ResultCard({ result }) {
 
           {showDebate && (
             <div className="p-3.5 space-y-3 bg-black/20 text-xs">
-              {/* Agent 1: Threat Hunter */}
+              {/* Agent 1 */}
               <div className="p-3 bg-error-container/10 border-l-2 border-error/70 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-bold text-error uppercase flex items-center gap-1.5 text-[11px]">
                     <span className="material-symbols-outlined text-[15px]">radar</span>
-                    Tác tử 1: Threat Hunter (Săn tìm rủi ro & Thao túng tâm lý)
-                  </span>
-                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-error/20 text-error rounded-none">
-                    Red Team
+                    AI 1: Nhận định rủi ro
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed text-[12px] mt-0.5">
@@ -228,15 +221,12 @@ export default function ResultCard({ result }) {
                 </p>
               </div>
 
-              {/* Agent 2: Verification Auditor */}
+              {/* Agent 2 */}
               <div className="p-3 bg-emerald-500/10 border-l-2 border-emerald-500/70 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-bold text-emerald-400 uppercase flex items-center gap-1.5 text-[11px]">
                     <span className="material-symbols-outlined text-[15px]">policy</span>
-                    Tác tử 2: Verification Auditor (Phản biện độc lập & Kiểm định kênh chiếm đoạt)
-                  </span>
-                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-none">
-                    Blue Team / Devil's Advocate
+                    AI 2: Nhận định an toàn
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed text-[12px] mt-0.5">
@@ -244,15 +234,12 @@ export default function ResultCard({ result }) {
                 </p>
               </div>
 
-              {/* Agent 3: Consensus Arbiter */}
+              {/* Agent 3 */}
               <div className="p-3 bg-primary/10 border-l-2 border-primary flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-bold text-primary uppercase flex items-center gap-1.5 text-[11px]">
                     <span className="material-symbols-outlined text-[15px]">gavel</span>
-                    Tác tử 3: Consensus Arbiter (Trọng tài tối cao & Phán quyết đồng thuận)
-                  </span>
-                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-primary/20 text-primary rounded-none">
-                    Final Arbiter
+                    AI 3: Kết luận
                   </span>
                 </div>
                 <p className="text-on-surface leading-relaxed text-[12px] font-medium mt-0.5">
