@@ -138,6 +138,14 @@ export default function HomePage() {
         formData.append('text', additionalText.trim());
       }
 
+      // Làm mới (clear) ảnh và văn bản trong ô ngay khi bắt đầu gửi kiểm tra
+      files.forEach((item) => {
+        if (item.preview) URL.revokeObjectURL(item.preview);
+      });
+      setFiles([]);
+      setAdditionalText('');
+      setOcrResult(null);
+
       const response = await API.post('/api/check', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -149,12 +157,6 @@ export default function HomePage() {
         checkTimestamps.push(Date.now());
         localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
       }
-
-      files.forEach((item) => {
-        if (item.preview) URL.revokeObjectURL(item.preview);
-      });
-      setFiles([]);
-      setOcrResult(null);
     } catch (err) {
       const msg = err.response?.data?.message || err.message;
       setError(`Có lỗi xảy ra khi phân tích: ${msg}`);
