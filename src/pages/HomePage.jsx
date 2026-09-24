@@ -113,7 +113,7 @@ export default function HomePage() {
         localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
       }
     } catch (err) {
-      const msg = err.response?.data?.message || err.message;
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message;
       setError(`Có lỗi xảy ra khi phân tích: ${msg}`);
     } finally {
       setAnalyzing(false);
@@ -199,15 +199,15 @@ export default function HomePage() {
               {/* Image Uploader */}
               <ImageUploader files={files} onChange={setFiles} />
 
-              {/* Google Cloud Vision OCR Telemetry Notice */}
+              {/* Local OCR notice */}
               {files.length > 0 && (
                 <div className="p-2.5 bg-primary/10 border border-primary/20 flex items-center justify-between text-xs text-primary font-mono animate-fadeIn">
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[16px]">document_scanner</span>
-                    <span>Hệ thống tự động kích hoạt Google Cloud Vision OCR trích xuất nguyên văn</span>
+                    <span>Ảnh được OCR trên máy chủ; chỉ văn bản được gửi tới AI</span>
                   </div>
                   <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold uppercase">
-                    Độ chính xác cao
+                    OCR cục bộ
                   </span>
                 </div>
               )}
