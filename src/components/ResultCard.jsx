@@ -15,8 +15,54 @@ export default function ResultCard({ result }) {
     messages = [],
     analysis: summary,
     recommendations = [],
-    extractedUrls = []
+    extractedUrls = [],
+    exfiltrationVector = 'none',
+    multiAgentDebate,
+    attackTarget,
   } = result;
+
+  const [showDebate, setShowDebate] = useState(true);
+
+  const VECTOR_MAP = {
+    none: {
+      label: 'Kênh chiếm đoạt: Không phát hiện (An toàn)',
+      sub: 'Không có liên kết lạ, không yêu cầu OTP, mật khẩu hay chuyển tiền',
+      badgeClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+      icon: 'verified_user',
+    },
+    phishing_link: {
+      label: 'Kênh chiếm đoạt: Liên kết giả mạo (Phishing Link)',
+      sub: 'Chứa website lạ hoặc tên miền rút gọn nhằm đánh cắp thông tin',
+      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      icon: 'link_off',
+    },
+    otp_theft: {
+      label: 'Kênh chiếm đoạt: Đánh cắp mã OTP / Mật khẩu',
+      sub: 'Dụ dỗ cung cấp mã xác thực giao dịch hoặc mật khẩu ngân hàng',
+      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      icon: 'lock_reset',
+    },
+    money_transfer: {
+      label: 'Kênh chiếm đoạt: Yêu cầu chuyển tiền / Nộp phí',
+      sub: 'Hối thúc chuyển khoản vào số tài khoản cá nhân hoặc nạp tiền giữ chỗ',
+      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      icon: 'payments',
+    },
+    apk_malware: {
+      label: 'Kênh chiếm đoạt: Mã độc / Tải ứng dụng ngoài (.APK)',
+      sub: 'Yêu cầu tải app giả danh cổng dịch vụ công hoặc ngân hàng',
+      badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+      icon: 'phone_android',
+    },
+    unauthorized_contact: {
+      label: 'Kênh chiếm đoạt: Số lạ / Liên hệ không chính thức',
+      sub: 'Yêu cầu gọi số hotline giả mạo hoặc nhắn qua Zalo/Telegram cá nhân',
+      badgeClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+      icon: 'contact_phone',
+    },
+  };
+
+  const currentVector = VECTOR_MAP[exfiltrationVector] || VECTOR_MAP.none;
 
   const caseId = `#CK-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -61,7 +107,7 @@ export default function ResultCard({ result }) {
     <div className="bg-surface-container rounded-none p-space-lg shadow-xl flex flex-col gap-space-md border border-white/10 animate-fadeIn">
       {/* Risk Header Badge */}
       <div className="flex items-center justify-between pb-space-xs border-b border-white/5">
-        <div className="flex items-center gap-space-2xs">
+        <div className="flex items-center gap-2">
           <span
             className={`w-3 h-3 rounded-full ${
               isHighRisk ? 'bg-error animate-pulse' : isMediumRisk ? 'bg-warning animate-pulse' : 'bg-[#10b981]'
@@ -73,6 +119,10 @@ export default function ResultCard({ result }) {
             }`}
           >
             KẾT QUẢ PHÂN TÍCH SỐ
+          </span>
+          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider bg-white/5 text-primary border border-primary/20">
+            <span className="material-symbols-outlined text-[12px]">hub</span>
+            Multi-Agent Consensus
           </span>
         </div>
         <span className="font-code-telemetry text-code-telemetry text-secondary">
@@ -121,6 +171,98 @@ export default function ResultCard({ result }) {
           ></div>
         </div>
       </div>
+
+      {/* Exfiltration Vector Chip (Ma Trận Kênh Chiếm Đoạt) */}
+      <div className={`p-2.5 border rounded-none flex items-start gap-2.5 ${currentVector.badgeClass}`}>
+        <span className="material-symbols-outlined text-[20px] flex-shrink-0 mt-0.5">
+          {currentVector.icon}
+        </span>
+        <div className="flex flex-col">
+          <span className="font-mono text-xs font-bold tracking-tight">
+            {currentVector.label}
+          </span>
+          <span className="text-[11px] opacity-80 leading-snug mt-0.5">
+            {currentVector.sub}
+          </span>
+        </div>
+      </div>
+
+      {/* Multi-Agent Deliberation Panel (XAI - Explainable AI) */}
+      {multiAgentDebate && (
+        <div className="border border-white/10 bg-surface-container-lowest rounded-none overflow-hidden">
+          <div
+            onClick={() => setShowDebate(!showDebate)}
+            className="flex items-center justify-between p-3 bg-surface-container-high/50 cursor-pointer hover:bg-surface-container-high transition-colors select-none border-b border-white/5"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px] text-primary">diversity_3</span>
+              <div>
+                <span className="font-mono text-xs font-bold text-on-surface tracking-wider uppercase">
+                  Nhật Ký Tranh Luận Giữa 3 Tác Tử AI (Multi-Agent Deliberation Log)
+                </span>
+                <p className="text-[11px] text-on-surface-variant">
+                  Cơ chế giải trình minh bạch (XAI) nhằm phát hiện thủ đoạn và triệt tiêu báo động sai (False Positive)
+                </p>
+              </div>
+            </div>
+            <span className="material-symbols-outlined text-on-surface-variant transition-transform text-[20px]">
+              {showDebate ? 'expand_less' : 'expand_more'}
+            </span>
+          </div>
+
+          {showDebate && (
+            <div className="p-3.5 space-y-3 bg-black/20 text-xs">
+              {/* Agent 1: Threat Hunter */}
+              <div className="p-3 bg-error-container/10 border-l-2 border-error/70 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-error uppercase flex items-center gap-1.5 text-[11px]">
+                    <span className="material-symbols-outlined text-[15px]">radar</span>
+                    Tác tử 1: Threat Hunter (Săn tìm rủi ro & Thao túng tâm lý)
+                  </span>
+                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-error/20 text-error rounded-none">
+                    Red Team
+                  </span>
+                </div>
+                <p className="text-on-surface-variant leading-relaxed text-[12px] mt-0.5">
+                  {multiAgentDebate.threatHunterAnalysis || 'Đang quét phân tích ngữ nghĩa và các chỉ số kích động tâm lý khẩn cấp.'}
+                </p>
+              </div>
+
+              {/* Agent 2: Verification Auditor */}
+              <div className="p-3 bg-emerald-500/10 border-l-2 border-emerald-500/70 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-emerald-400 uppercase flex items-center gap-1.5 text-[11px]">
+                    <span className="material-symbols-outlined text-[15px]">policy</span>
+                    Tác tử 2: Verification Auditor (Phản biện độc lập & Kiểm định kênh chiếm đoạt)
+                  </span>
+                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-none">
+                    Blue Team / Devil's Advocate
+                  </span>
+                </div>
+                <p className="text-on-surface-variant leading-relaxed text-[12px] mt-0.5">
+                  {multiAgentDebate.auditorDefense || 'Đang đối chiếu ma trận kênh chiếm đoạt từ xa và quy tắc địa điểm vật lý.'}
+                </p>
+              </div>
+
+              {/* Agent 3: Consensus Arbiter */}
+              <div className="p-3 bg-primary/10 border-l-2 border-primary flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-primary uppercase flex items-center gap-1.5 text-[11px]">
+                    <span className="material-symbols-outlined text-[15px]">gavel</span>
+                    Tác tử 3: Consensus Arbiter (Trọng tài tối cao & Phán quyết đồng thuận)
+                  </span>
+                  <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 bg-primary/20 text-primary rounded-none">
+                    Final Arbiter
+                  </span>
+                </div>
+                <p className="text-on-surface leading-relaxed text-[12px] font-medium mt-0.5">
+                  {multiAgentDebate.arbiterVerdict || 'Đã tổng hợp ý kiến phản biện và đưa ra phán quyết đồng thuận cuối cùng.'}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Forensic Summary */}
       {summary && (
