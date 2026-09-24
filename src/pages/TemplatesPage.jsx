@@ -235,20 +235,7 @@ export default function TemplatesPage() {
                   </div>
 
                   {/* Meta Footer */}
-                  <div className="flex items-center justify-between pt-space-xs border-t border-white/5 text-xs text-on-surface-variant font-label-caption">
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px] text-primary">
-                        {tpl.platform?.toLowerCase() === 'sms'
-                          ? 'sms'
-                          : tpl.platform?.toLowerCase() === 'zalo'
-                          ? 'forum'
-                          : tpl.platform?.toLowerCase() === 'facebook'
-                          ? 'public'
-                          : 'devices_other'}
-                      </span>
-                      <span className="uppercase">{tpl.platform || 'SMS'}</span>
-                    </span>
-
+                  <div className="flex items-center justify-end pt-space-xs border-t border-white/5 text-xs text-on-surface-variant font-label-caption">
                     <span className="text-primary font-semibold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
                       <span>Xem chi tiết</span>
                       <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
