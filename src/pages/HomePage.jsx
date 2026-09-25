@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import ResultCard from '../components/ResultCard';
 import API from '../api/api';
-import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
   const [files, setFiles] = useState([]);
@@ -16,7 +15,6 @@ export default function HomePage() {
     warnedScans: 9,
     maxConfidence: 98,
   });
-  const { isAdmin, isLoggedIn } = useAuth();
 
   const fetchStats = useCallback(async () => {
     try {
@@ -45,36 +43,6 @@ export default function HomePage() {
 
   const handleSubmit = async () => {
     setError('');
-
-    // Limit check: 3 checks in 30 mins for non-admins
-    const isUserAdmin = isAdmin || isLoggedIn;
-    const now = Date.now();
-    const LIMIT_MINUTES = 30;
-    const LIMIT_COUNT = 3;
-    const LIMIT_MS = LIMIT_MINUTES * 60 * 1000;
-
-    let checkTimestamps = [];
-    if (!isUserAdmin) {
-      try {
-        const stored = localStorage.getItem('check_limit_timestamps');
-        if (stored) {
-          checkTimestamps = JSON.parse(stored).filter(t => typeof t === 'number');
-        }
-      } catch (e) {
-        checkTimestamps = [];
-      }
-
-      checkTimestamps = checkTimestamps.filter(t => now - t < LIMIT_MS);
-
-      if (checkTimestamps.length >= LIMIT_COUNT) {
-        const oldest = checkTimestamps[0];
-        const remainingMs = (oldest + LIMIT_MS) - now;
-        const minutes = Math.floor(remainingMs / (60 * 1000));
-        const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
-        setError(`Bạn đã đạt giới hạn 3 lượt kiểm tra trong 30 phút. Vui lòng quay lại sau ${minutes} phút ${seconds} giây.`);
-        return;
-      }
-    }
 
     if (files.length === 0 && !additionalText.trim()) {
       setError('Vui lòng tải lên ít nhất 1 ảnh chụp màn hình hoặc dán nội dung tin nhắn nghi vấn.');
@@ -108,11 +76,6 @@ export default function HomePage() {
 
       setResult(response.data);
       fetchStats();
-
-      if (!isUserAdmin) {
-        checkTimestamps.push(Date.now());
-        localStorage.setItem('check_limit_timestamps', JSON.stringify(checkTimestamps));
-      }
     } catch (err) {
       const msg = err.response?.data?.error || err.response?.data?.message || err.message;
       setError(`Có lỗi xảy ra khi phân tích: ${msg}`);

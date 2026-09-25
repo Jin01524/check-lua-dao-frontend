@@ -6,7 +6,6 @@ import HomePage from './pages/HomePage';
 import TemplatesPage from './pages/TemplatesPage';
 import TemplateDetailPage from './pages/TemplateDetailPage';
 import AdminLoginPage from './pages/AdminLoginPage';
-import RegisterPage from './pages/RegisterPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
 function ProtectedRoute({ children }) {
@@ -24,7 +23,6 @@ function App() {
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/templates/:id" element={<TemplateDetailPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
         <Route
           path="/admin/dashboard"
           element={
