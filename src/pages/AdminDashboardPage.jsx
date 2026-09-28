@@ -776,8 +776,8 @@ function ChangePasswordModal({ user, onClose, onUpdated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!password || password.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+    if (!password || password.length < 12) {
+      setError('Mật khẩu mới phải có ít nhất 12 ký tự.');
       return;
     }
     setLoading(true);
@@ -828,7 +828,7 @@ function ChangePasswordModal({ user, onClose, onUpdated }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Tối thiểu 6 ký tự..."
+              placeholder="Tối thiểu 12 ký tự..."
               className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
             />
           </div>
@@ -868,14 +868,6 @@ function UsersTab() {
 
   const [renamingUser, setRenamingUser] = useState(null);
   const [passUser, setPassUser] = useState(null);
-  const [showPasswords, setShowPasswords] = useState({});
-
-  const toggleShowPassword = (userId) => {
-    setShowPasswords((prev) => ({
-      ...prev,
-      [userId]: !prev[userId],
-    }));
-  };
 
   const fetchUsers = async () => {
     try {
@@ -901,8 +893,8 @@ function UsersTab() {
       setError('Vui lòng nhập tên đăng nhập.');
       return;
     }
-    if (!newPassword || newPassword.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+    if (!newPassword || newPassword.length < 12) {
+      setError('Mật khẩu phải có ít nhất 12 ký tự.');
       return;
     }
 
@@ -1009,7 +1001,7 @@ function UsersTab() {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Tối thiểu 6 ký tự..."
+              placeholder="Tối thiểu 12 ký tự..."
               className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary"
             />
           </div>
@@ -1081,7 +1073,7 @@ function UsersTab() {
               <thead>
                 <tr className="border-b border-white/10 text-on-surface-variant font-label-badge text-[11px]">
                   <th className="py-2.5 px-3">TÀI KHOẢN</th>
-                  <th className="py-2.5 px-3">MẬT KHẨU</th>
+                  <th className="py-2.5 px-3">BẢO MẬT</th>
                   <th className="py-2.5 px-3">VAI TRÒ</th>
                   <th className="py-2.5 px-3">TRẠNG THÁI</th>
                   <th className="py-2.5 px-3 text-right">THAO TÁC</th>
@@ -1092,8 +1084,6 @@ function UsersTab() {
                   const isMaster = u.username?.toLowerCase() === 'admin';
                   const isAdminRole = u.role === 'admin';
                   const isActive = u.is_active !== false;
-                  const isPassVisible = !!showPasswords[u.id];
-                  const rawPass = u.password_display || (isMaster ? '123456' : '••••••');
 
                   return (
                     <tr key={u.id} className="hover:bg-surface-container/50 transition-colors">
@@ -1118,21 +1108,9 @@ function UsersTab() {
                         </div>
                       </td>
 
-                      {/* Cột Mật khẩu: Cho phép xem mật khẩu */}
+                      {/* Mật khẩu không được trả về hoặc lưu ở dạng có thể đọc. */}
                       <td className="py-3 px-3">
-                        <div className="inline-flex items-center gap-1.5 font-mono text-[11px] bg-surface-container px-2 py-0.5 border border-white/5">
-                          <span>{isPassVisible ? rawPass : '••••••'}</span>
-                          <button
-                            type="button"
-                            onClick={() => toggleShowPassword(u.id)}
-                            className="text-on-surface-variant hover:text-primary transition-colors p-0.5"
-                            title={isPassVisible ? 'Ẩn mật khẩu' : 'Xem mật khẩu'}
-                          >
-                            <span className="material-symbols-outlined text-[14px]">
-                              {isPassVisible ? 'visibility_off' : 'visibility'}
-                            </span>
-                          </button>
-                        </div>
+                        <span className="text-xs text-on-surface-variant">Mật khẩu được ẩn</span>
                       </td>
 
                       <td className="py-3 px-3">

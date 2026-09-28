@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import ChatBubble from '../components/ChatBubble';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
-import { normalizeThreatScore, getConsistentThreatScore, getThreatLevel, getAttackTarget } from '../utils/threatUtils';
+import { normalizeThreatScore, getThreatLevel, getAttackTarget } from '../utils/threatUtils';
 
 export default function TemplateDetailPage() {
   const { id } = useParams();
@@ -73,8 +73,12 @@ export default function TemplateDetailPage() {
     }
   }
 
-  const danger = passedDanger || getConsistentThreatScore(template);
-  const threat = getThreatLevel(danger);
+  const isSafe = template?.scam_type === 'Tin nhắn an toàn / Bình thường';
+  const rawScore = template?.confidence_score ?? passedDanger;
+  const danger = !isSafe && rawScore != null && Number.isFinite(Number(rawScore))
+    ? normalizeThreatScore(rawScore, 0)
+    : null;
+  const threat = danger == null ? null : getThreatLevel(danger);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -134,9 +138,9 @@ export default function TemplateDetailPage() {
               <div className="flex flex-wrap items-center justify-between gap-2 mb-space-xs">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`font-label-badge text-label-badge px-2.5 py-0.5 rounded-none font-bold border ${threat.badgeClass}`}
+                    className={`font-label-badge text-label-badge px-2.5 py-0.5 rounded-none font-bold border ${threat?.badgeClass || 'text-on-surface-variant bg-surface-container border-outline/30'}`}
                   >
-                    {threat.level} - {danger}%
+                    {isSafe ? 'AI đánh giá an toàn' : threat ? `${threat.level} - ${danger}%` : 'Chưa có điểm rủi ro'}
                   </span>
                   <span className="font-label-badge text-label-badge px-2 py-0.5 bg-surface-container text-primary rounded-none border border-primary/30 uppercase">
                     {template.platform || 'SMS'}
@@ -154,7 +158,7 @@ export default function TemplateDetailPage() {
               </div>
 
               <h1 className="font-headline-md text-2xl lg:text-headline-md text-on-surface font-bold mb-space-2xs">
-                {template.title || 'Mẫu tin nhắn lừa đảo'}
+                {template.title || 'Mẫu tin nhắn'}
               </h1>
 
               <div className="flex items-center gap-4 text-xs font-label-caption text-on-surface-variant">
@@ -193,7 +197,7 @@ export default function TemplateDetailPage() {
                 <div className="bg-surface-container-low rounded-none p-space-md border border-white/5">
                   <div className="flex items-center gap-1.5 font-label-badge text-xs text-primary uppercase mb-space-xs font-semibold">
                     <span className="material-symbols-outlined text-[18px]">chat_error</span>
-                    <span>Nội dung tin nhắn lừa đảo</span>
+                    <span>Nội dung tin nhắn</span>
                   </div>
 
                   {/* Message box (only display when raw text content exists) */}
@@ -244,23 +248,23 @@ export default function TemplateDetailPage() {
                 <div className="bg-surface-container-low rounded-none p-space-md border border-white/5 flex flex-col gap-space-md">
                   <div className="flex items-center gap-1.5 font-label-badge text-xs text-tertiary uppercase font-semibold">
                     <span className="material-symbols-outlined text-[18px]">analytics</span>
-                    <span>Phân tích kịch bản lừa đảo</span>
+                    <span>Phân tích tình huống</span>
                   </div>
 
                   {/* AI Analysis Narrative */}
                   <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                    {template.analysis || 'Hệ thống nhận diện chiến dịch này sử dụng kỹ thuật giả mạo định danh ngân hàng kết hợp trạm BTS giả mạo để tiếp cận nạn nhân trên diện rộng.'}
+                    {template.analysis || 'Chưa có phân tích chi tiết cho mẫu này.'}
                   </p>
 
                   {/* Forensic Indicators */}
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-3 bg-surface-container rounded-none border border-white/5">
-                      <span className="text-on-surface-variant block font-label-caption mb-1">Mục tiêu tấn công</span>
-                      <span className="font-semibold text-primary">{getAttackTarget(template)}</span>
+                      <span className="text-on-surface-variant block font-label-caption mb-1">Mục tiêu</span>
+                      <span className="font-semibold text-primary">{isSafe ? 'Không ghi nhận' : getAttackTarget(template)}</span>
                     </div>
                     <div className="p-3 bg-surface-container rounded-none border border-white/5">
-                      <span className="text-on-surface-variant block font-label-caption mb-1">Cơ chế thao túng</span>
-                      <span className="font-semibold text-error">Hối thúc / Đe dọa khóa</span>
+                      <span className="text-on-surface-variant block font-label-caption mb-1">Dấu hiệu ghi nhận</span>
+                      <span className="font-semibold text-on-surface">{Array.isArray(warningPoints) && warningPoints.length > 0 ? warningPoints[0] : 'Chưa có dữ liệu'}</span>
                     </div>
                     <div className="p-3 bg-surface-container rounded-none border border-white/5">
                       <span className="text-on-surface-variant block font-label-caption mb-1">Kênh phát tán</span>
@@ -268,7 +272,7 @@ export default function TemplateDetailPage() {
                     </div>
                     <div className="p-3 bg-surface-container rounded-none border border-white/5">
                       <span className="text-on-surface-variant block font-label-caption mb-1">Mức độ nguy hiểm</span>
-                      <span className="font-semibold text-error">{danger}% ({threat.textDesc})</span>
+                      <span className="font-semibold text-on-surface">{isSafe ? 'AI đánh giá an toàn' : threat ? `${danger}% (${threat.textDesc})` : 'Chưa có điểm rủi ro'}</span>
                     </div>
                   </div>
 

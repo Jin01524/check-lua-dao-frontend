@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
-import { normalizeThreatScore, getConsistentThreatScore, getThreatLevel } from '../utils/threatUtils';
+import { normalizeThreatScore, getThreatLevel } from '../utils/threatUtils';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
@@ -15,12 +15,17 @@ export default function TemplatesPage() {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await API.get('/api/templates');
-        if (res.data?.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
-          setTemplates(res.data.data);
-        } else {
-          setTemplates(DEFAULT_TEMPLATES);
+        const allTemplates = [];
+        let offset = 0;
+        let hasMore = true;
+        while (hasMore) {
+          const res = await API.get('/api/templates', { params: { limit: 50, offset } });
+          if (!Array.isArray(res.data?.data)) throw new Error('Danh sách mẫu không hợp lệ');
+          allTemplates.push(...res.data.data);
+          offset += res.data.data.length;
+          hasMore = res.data.hasMore === true && res.data.data.length > 0;
         }
+        setTemplates(allTemplates);
       } catch (err) {
         console.warn('[TemplatesPage] Using offline threat library:', err.message);
         setTemplates(DEFAULT_TEMPLATES);
@@ -61,10 +66,10 @@ export default function TemplatesPage() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-space-lg">
             <div className="max-w-3xl">
               <h1 className="font-headline-lg text-2xl sm:text-3xl lg:text-headline-lg text-on-surface tracking-tight mb-space-2xs font-bold">
-                Kho Dữ Liệu Mẫu Tin Nhắn Lừa Đảo Đã Cảnh Báo
+                Kho Mẫu Tin Nhắn
               </h1>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-                Tập hợp các thủ đoạn tấn công phi kỹ thuật (Social Engineering), tin nhắn mạo danh độc hại đã qua phân tích số bởi hệ thống AI và kiểm chứng bởi đội ngũ kiểm duyệt
+                Tham khảo các mẫu tin nhắn đã phân tích. Trạng thái kiểm duyệt được ghi rõ trên từng mẫu; mẫu chưa kiểm duyệt cần được xác minh thêm.
               </p>
             </div>
 
@@ -183,8 +188,11 @@ export default function TemplatesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
             {filtered.map((tpl) => {
               const id = tpl.id || tpl._id;
-              const danger = getConsistentThreatScore(tpl);
-              const threat = getThreatLevel(danger);
+              const isSafe = tpl.scam_type === 'Tin nhắn an toàn / Bình thường';
+              const danger = !isSafe && tpl.confidence_score != null && Number.isFinite(Number(tpl.confidence_score))
+                ? normalizeThreatScore(tpl.confidence_score, 0)
+                : null;
+              const threat = danger == null ? null : getThreatLevel(danger);
 
               return (
                 <article
@@ -199,9 +207,9 @@ export default function TemplatesPage() {
                     <div className="flex items-center justify-between gap-2 mb-space-xs flex-wrap">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span
-                          className={`font-label-badge text-label-badge px-2 py-0.5 rounded-none font-bold border ${threat.badgeClass}`}
+                          className={`font-label-badge text-label-badge px-2 py-0.5 rounded-none font-bold border ${threat?.badgeClass || 'text-on-surface-variant bg-surface-container border-outline/30'}`}
                         >
-                          {threat.level} - {danger}%
+                          {isSafe ? 'AI đánh giá an toàn' : threat ? `${threat.level} - ${danger}%` : 'Chưa có điểm rủi ro'}
                         </span>
 
                         {/* Verification Status Badge */}
