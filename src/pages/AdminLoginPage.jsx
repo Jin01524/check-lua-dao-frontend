@@ -31,8 +31,10 @@ export default function AdminLoginPage() {
 
       navigate('/admin/dashboard', { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.message || err.message;
-      setError(msg || 'Tên đăng nhập hoặc mật khẩu quản trị không chính xác.');
+      const serverMessage = err.response?.data?.error || err.response?.data?.message;
+      setError(serverMessage || (err.response?.status === 401
+        ? 'Tên đăng nhập hoặc mật khẩu quản trị không chính xác.'
+        : 'Không thể kết nối máy chủ đăng nhập. Vui lòng thử lại.'));
     } finally {
       setLoading(false);
     }
@@ -62,7 +64,7 @@ export default function AdminLoginPage() {
 
         {/* Error */}
         {error && (
-          <div className="flex items-center gap-2 p-3 bg-error-container/20 border border-error/30 rounded-xl text-error text-body-sm mb-4">
+          <div role="alert" className="flex items-center gap-2 p-3 bg-error-container/20 border border-error/30 rounded-xl text-error text-body-sm mb-4">
             <span className="material-symbols-outlined text-[18px]">warning</span>
             <span>{error}</span>
           </div>
