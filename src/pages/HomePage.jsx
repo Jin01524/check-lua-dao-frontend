@@ -235,6 +235,9 @@ export default function HomePage() {
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   )}
                 </button>
+                <p className="mt-3 text-xs leading-relaxed text-on-surface-variant">
+                  Kết quả đủ ba phân tích AI sẽ được lưu làm mẫu. Mẫu rủi ro chưa kiểm duyệt có thể xuất hiện công khai; hãy che thông tin riêng tư trước khi gửi.
+                </p>
               </div>
             </div>
 
@@ -267,7 +270,18 @@ export default function HomePage() {
               </div>
             ) : result ? (
               /* Real-time Forensic Result */
-              <ResultCard result={result} />
+              <div className="space-y-3">
+                <ResultCard result={result} />
+                {result.templateSaveStatus && result.templateSaveStatus !== 'not_applicable' && (
+                  <p role="status" className="rounded-lg border border-white/10 bg-surface-container p-3 text-sm text-on-surface-variant">
+                    {result.templateSaveStatus === 'saved'
+                      ? 'Đã lưu mẫu phân tích. Mẫu đang ở trạng thái chưa kiểm duyệt.'
+                      : result.templateSaveStatus === 'incomplete_analysis'
+                        ? 'Đã trả kết quả quét, nhưng chưa lưu mẫu vì AI thiếu một trong ba phần phân tích.'
+                        : 'Đã trả kết quả quét, nhưng chưa lưu được mẫu. Vui lòng thử lại sau.'}
+                  </p>
+                )}
+              </div>
             ) : (
               /* Ready State */
               <div className="bg-surface-container-low rounded-none p-space-xl border border-white/5 shadow-md flex flex-col items-center justify-center text-center min-h-[380px] gap-3">
