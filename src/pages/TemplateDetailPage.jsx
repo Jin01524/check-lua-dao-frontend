@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import ChatBubble from '../components/ChatBubble';
+import TemplateAnalysis from '../components/TemplateAnalysis';
 import API from '../api/api';
 import { DEFAULT_TEMPLATES } from '../data/defaultTemplates';
 import { normalizeThreatScore, getThreatLevel, getAttackTarget } from '../utils/threatUtils';
@@ -252,9 +253,7 @@ export default function TemplateDetailPage() {
                   </div>
 
                   {/* AI Analysis Narrative */}
-                  <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                    {template.analysis || 'Chưa có phân tích chi tiết cho mẫu này.'}
-                  </p>
+                  <TemplateAnalysis template={template} />
 
                   {/* Forensic Indicators */}
                   <div className="grid grid-cols-2 gap-2 text-xs">

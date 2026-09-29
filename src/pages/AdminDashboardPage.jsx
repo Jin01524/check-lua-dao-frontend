@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBubble from '../components/ChatBubble';
+import TemplateAnalysis from '../components/TemplateAnalysis';
 import API from '../api/api';
 import { getConsistentThreatScore, getThreatLevel, getAttackTarget } from '../utils/threatUtils';
 
@@ -91,14 +92,12 @@ function TemplateModal({ template, onClose }) {
           </div>
 
           {/* Analysis */}
-          {template.analysis && (
+          {(template.analysis || template.multi_agent_debate) && (
             <div className="p-3 bg-surface-container rounded-xl border border-white/5">
               <div className="font-label-badge text-xs text-tertiary uppercase mb-1">
                 Phân tích giám định AI:
               </div>
-              <p className="text-xs text-on-surface-variant leading-relaxed">
-                {template.analysis}
-              </p>
+              <TemplateAnalysis template={template} />
             </div>
           )}
         </div>
