@@ -58,10 +58,14 @@ export default {
         "outline-variant": "#cbd5e1"
       },
       borderRadius: {
-        "DEFAULT": "0.125rem",
-        "lg": "0.25rem",
-        "xl": "0.5rem",
-        "full": "0.75rem"
+        "DEFAULT": "0",
+        "sm": "0",
+        "md": "0",
+        "lg": "0",
+        "xl": "0",
+        "2xl": "0",
+        "3xl": "0",
+        "full": "9999px"
       },
       spacing: {
         "space-2xs": "0.25rem",

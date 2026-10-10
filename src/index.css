@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  button, input, textarea, select, [role="button"] {
+    border-radius: 0 !important;
+  }
+
   html, body {
     margin: 0;
     padding: 0;

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import ResultCard from '../components/ResultCard';
+import ContextFollowUp from '../components/ContextFollowUp';
 import API from '../api/api';
 
 export default function HomePage() {
@@ -9,6 +10,9 @@ export default function HomePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [waitSeconds, setWaitSeconds] = useState(0);
   const [result, setResult] = useState(null);
+  const [scanSession, setScanSession] = useState(null);
+  const scanRequestIdRef = useRef(null);
+  const continueRequestRef = useRef(null);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({
     totalScans: 9,
@@ -51,6 +55,7 @@ export default function HomePage() {
     setWaitSeconds(0);
     setAnalyzing(true);
     setResult(null);
+    setScanSession(null);
 
     try {
       const formData = new FormData();
@@ -59,26 +64,83 @@ export default function HomePage() {
       });
 
       formData.append('platform', 'sms');
+      scanRequestIdRef.current ||= crypto.randomUUID();
+      formData.append('clientRequestId', scanRequestIdRef.current);
       if (additionalText.trim()) {
         formData.append('text', additionalText.trim());
       }
 
-      // Làm mới (clear) ảnh và văn bản trong ô ngay khi bắt đầu gửi kiểm tra
+      let response;
+      try {
+        response = await API.post('/api/v2/check', formData);
+      } catch (err) {
+        if (err.response?.status !== 404) throw err;
+        response = await API.post('/api/check', formData);
+      }
+
+      setResult(response.data);
+      setScanSession({
+        id: response.data.scanSessionId,
+        originalText: [additionalText.trim(), response.data.ocrExtractedText || ''].filter(Boolean).join('\n'),
+        round: 1,
+      });
       files.forEach((item) => {
         if (item.preview) URL.revokeObjectURL(item.preview);
       });
       setFiles([]);
       setAdditionalText('');
-
-      const response = await API.post('/api/check', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      setResult(response.data);
+      scanRequestIdRef.current = null;
       fetchStats();
     } catch (err) {
       const msg = err.response?.data?.error || err.response?.data?.message || err.message;
       setError(`Có lỗi xảy ra khi phân tích: ${msg}`);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const handleContinue = async ({ sentReply, senderReply, image }) => {
+    if (!scanSession?.id || !scanSession.originalText) {
+      setError('Phiên quét đã hết dữ liệu gốc. Vui lòng quét lại tin nhắn ban đầu.');
+      return;
+    }
+    if (image && (!['image/jpeg', 'image/png'].includes(image.type) || image.size > 10 * 1024 * 1024)) {
+      setError('Ảnh phản hồi phải là JPEG/PNG và không quá 10 MB.');
+      return;
+    }
+    setError('');
+    setAnalyzing(true);
+    try {
+      const formData = new FormData();
+      const fingerprint = JSON.stringify([scanSession.id, scanSession.round, sentReply, senderReply,
+        image && [image.name, image.size, image.lastModified]]);
+      if (continueRequestRef.current?.fingerprint !== fingerprint) {
+        continueRequestRef.current = { fingerprint, id: crypto.randomUUID() };
+      }
+      formData.append('scanSessionId', scanSession.id);
+      formData.append('originalText', scanSession.originalText);
+      formData.append('sentReply', sentReply);
+      formData.append('senderReply', senderReply);
+      formData.append('round', String(Math.min(scanSession.round + 1, 3)));
+      formData.append('platform', 'sms');
+      formData.append('clientRequestId', continueRequestRef.current.id);
+      if (image) formData.append('images', image);
+      const response = await API.post('/api/v2/check/continue', formData);
+      setResult(response.data);
+      setScanSession((current) => ({
+        ...current,
+        originalText: [
+          current.originalText,
+          sentReply && `[Người dùng đã hỏi] ${sentReply}`,
+          senderReply && `[Phản hồi của người gửi] ${senderReply}`,
+          response.data.ocrExtractedText && `[Phản hồi OCR] ${response.data.ocrExtractedText}`,
+        ].filter(Boolean).join('\n'),
+        round: Math.min(current.round + 1, 3),
+      }));
+      continueRequestRef.current = null;
+      fetchStats();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Không phân tích lại được. Nội dung cũ vẫn còn trong phiên này.');
     } finally {
       setAnalyzing(false);
     }
@@ -94,7 +156,7 @@ export default function HomePage() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
         {/* HERO HEADER SECTION */}
         <section className="flex flex-col items-center text-center max-w-4xl mx-auto mb-space-2xl">
-          <div className="inline-flex items-center gap-space-xs px-space-sm py-space-2xs bg-surface-container-high border border-white/10 rounded-full mb-space-md shadow-sm">
+          <div className="inline-flex items-center gap-space-xs px-space-sm py-space-2xs bg-surface-container-high border border-white/10 rounded-none mb-space-md shadow-sm">
             <span className="w-2.5 h-2.5 rounded-full bg-tertiary animate-ping"></span>
             <span className="material-symbols-outlined text-tertiary text-[18px]">verified</span>
             <span className="font-label-badge text-label-badge text-tertiary uppercase tracking-wider">
@@ -158,7 +220,7 @@ export default function HomePage() {
               </div>
 
               {/* Image Uploader */}
-              <ImageUploader files={files} onChange={setFiles} />
+              <ImageUploader files={files} onChange={(next) => { scanRequestIdRef.current = null; setFiles(next); }} />
 
               {/* Local OCR notice */}
               {files.length > 0 && (
@@ -188,14 +250,14 @@ export default function HomePage() {
                     id="scam-text-input"
                     rows="3"
                     value={additionalText}
-                    onChange={(e) => setAdditionalText(e.target.value)}
+                    onChange={(e) => { scanRequestIdRef.current = null; setAdditionalText(e.target.value); }}
                     placeholder="Ví dụ: http://vcb-digi-bank.vip/login hoặc dán toàn bộ đoạn văn bản tin nhắn nhận được..."
                     className="w-full bg-surface-container text-on-surface font-code-telemetry text-code-telemetry p-space-sm rounded-none focus:outline-none focus:ring-1 focus:ring-primary border border-white/5 resize-none placeholder-on-surface-variant/40"
                   />
                   {additionalText && (
                     <button
                       type="button"
-                      onClick={() => setAdditionalText('')}
+                      onClick={() => { scanRequestIdRef.current = null; setAdditionalText(''); }}
                       className="absolute bottom-2.5 right-2.5 text-on-surface-variant hover:text-on-surface p-1 rounded-none bg-surface-container-high text-xs"
                       title="Xóa nội dung"
                     >
@@ -236,7 +298,7 @@ export default function HomePage() {
                   )}
                 </button>
                 <p className="mt-3 text-xs leading-relaxed text-on-surface-variant">
-                  Kết quả đủ ba phân tích AI sẽ được lưu làm mẫu. Mẫu rủi ro chưa kiểm duyệt có thể xuất hiện công khai; hãy che thông tin riêng tư trước khi gửi.
+                  Kết quả đủ ngữ cảnh và đủ ba phân tích AI mới được lưu làm mẫu. Mẫu rủi ro chưa kiểm duyệt có thể xuất hiện công khai; hãy che thông tin riêng tư trước khi gửi.
                 </p>
               </div>
             </div>
@@ -271,13 +333,20 @@ export default function HomePage() {
             ) : result ? (
               /* Real-time Forensic Result */
               <div className="space-y-3">
-                <ResultCard result={result} />
+                {['insufficient_context', 'invalid_input'].includes(result.assessment?.status)
+                  ? <ContextFollowUp result={result} busy={analyzing} onContinue={handleContinue}
+                      onDiscard={() => { setResult(null); setScanSession(null); continueRequestRef.current = null; }} />
+                  : <ResultCard result={result} />}
                 {result.templateSaveStatus && result.templateSaveStatus !== 'not_applicable' && (
                   <p role="status" className="rounded-lg border border-white/10 bg-surface-container p-3 text-sm text-on-surface-variant">
                     {result.templateSaveStatus === 'saved'
                       ? 'Đã lưu mẫu phân tích. Mẫu đang ở trạng thái chưa kiểm duyệt.'
                       : result.templateSaveStatus === 'incomplete_analysis'
                         ? 'Đã trả kết quả quét, nhưng chưa lưu mẫu vì AI thiếu một trong ba phần phân tích.'
+                        : result.templateSaveStatus === 'deferred_insufficient_context'
+                          ? 'Đang chờ thêm ngữ cảnh; chưa lưu mẫu vào kho.'
+                          : result.templateSaveStatus === 'deferred_review'
+                            ? 'Có dấu hiệu cần cảnh giác nhưng AI chưa nhất quán; chưa lưu mẫu vào kho.'
                         : 'Đã trả kết quả quét, nhưng chưa lưu được mẫu. Vui lòng thử lại sau.'}
                   </p>
                 )}

@@ -10,7 +10,7 @@ export default function ResultCard({ result }) {
     isChatScreenshot = true,
     isScam,
     scamType,
-    confidenceScore: dangerLevel = 0,
+    confidenceScore: dangerLevel = null,
     warningPoints = [],
     messages = [],
     analysis: summary,
@@ -72,12 +72,12 @@ export default function ResultCard({ result }) {
     if (navigator.share) {
       navigator.share({
         title: `Cảnh báo lừa đảo: ${scamType || 'CheckLuaDao'}`,
-        text: `Hệ thống AI CheckLuaDao vừa phát hiện tin nhắn lừa đảo nguy hiểm (${dangerLevel}%). Xem chi tiết tại CheckLuaDao.`,
+        text: `Hệ thống AI CheckLuaDao vừa phát hiện tin nhắn có nguy cơ lừa đảo${dangerLevel == null ? '' : ` (điểm rủi ro ${dangerLevel}/100)`}. Xem chi tiết tại CheckLuaDao.`,
         url: window.location.href,
       }).catch(() => {});
     } else {
       navigator.clipboard.writeText(
-        `[CẢNH BÁO LỪA ĐẢO - CheckLuaDao]\nLoại: ${scamType || 'Chưa rõ'}\nMức độ: ${dangerLevel}%\nChi tiết: ${summary || ''}`
+        `[CẢNH BÁO LỪA ĐẢO - CheckLuaDao]\nLoại: ${scamType || 'Chưa rõ'}\n${dangerLevel == null ? '' : `Điểm rủi ro: ${dangerLevel}/100\n`}Chi tiết: ${summary || ''}`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
@@ -102,8 +102,8 @@ export default function ResultCard({ result }) {
     );
   }
 
-  const isHighRisk = isScam && dangerLevel >= 70;
-  const isMediumRisk = isScam && dangerLevel < 70;
+  const isHighRisk = isScam && dangerLevel != null && dangerLevel >= 70;
+  const isMediumRisk = isScam && !isHighRisk;
 
   return (
     <div className="bg-surface-container rounded-none p-space-lg shadow-xl flex flex-col gap-space-md border border-white/10 animate-fadeIn">
@@ -144,8 +144,8 @@ export default function ResultCard({ result }) {
             <span className="font-headline-sm text-headline-sm font-bold uppercase tracking-tight">
               {isScam
                 ? isHighRisk
-                  ? `RỦI RO RẤT CAO (${dangerLevel}%)`
-                  : `CẢNH BÁO NGHI VẤN (${dangerLevel}%)`
+                  ? `RỦI RO RẤT CAO (${dangerLevel}/100)`
+                  : `CẢNH BÁO NGHI VẤN${dangerLevel == null ? '' : ` (${dangerLevel}/100)`}`
                 : 'AN TOÀN / KHÔNG PHÁT HIỆN LỪA ĐẢO'}
             </span>
           </div>
@@ -160,14 +160,14 @@ export default function ResultCard({ result }) {
         </p>
 
         {/* Progress gauge bar */}
-        <div className="w-full bg-surface-container-lowest h-2 rounded-none overflow-hidden mt-1.5">
+        {dangerLevel != null && <div className="w-full bg-surface-container-lowest h-2 rounded-none overflow-hidden mt-1.5">
           <div
             className={`h-full rounded-none transition-all duration-1000 ${
               isHighRisk ? 'bg-error' : isMediumRisk ? 'bg-warning' : 'bg-[#10b981]'
             }`}
             style={{ width: `${Math.max(dangerLevel, 10)}%` }}
           ></div>
-        </div>
+        </div>}
       </div>
 
       {/* Exfiltration Vector Chip (Ma Trận Kênh Chiếm Đoạt) */}

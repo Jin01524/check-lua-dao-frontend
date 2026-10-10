@@ -502,7 +502,7 @@ function TemplatesTab() {
           <h3 className="font-title-md text-sm font-bold text-on-surface flex items-center gap-2">
             <span>Bàn Kiểm Duyệt Mẫu Tin Nghi Vấn ({templates.length})</span>
             {safeCount > 0 && (
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#10b981]/20 text-emerald-700 font-semibold">
+              <span className="text-[11px] px-2 py-0.5 rounded-none bg-[#10b981]/20 text-emerald-700 font-semibold">
                 {safeCount} mẫu an toàn đối chiếu
               </span>
             )}
