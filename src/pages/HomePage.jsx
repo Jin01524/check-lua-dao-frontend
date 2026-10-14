@@ -10,9 +10,7 @@ export default function HomePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [waitSeconds, setWaitSeconds] = useState(0);
   const [result, setResult] = useState(null);
-  const [scanSession, setScanSession] = useState(null);
   const scanRequestIdRef = useRef(null);
-  const continueRequestRef = useRef(null);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({
     totalScans: 9,
@@ -55,7 +53,6 @@ export default function HomePage() {
     setWaitSeconds(0);
     setAnalyzing(true);
     setResult(null);
-    setScanSession(null);
 
     try {
       const formData = new FormData();
@@ -79,11 +76,6 @@ export default function HomePage() {
       }
 
       setResult(response.data);
-      setScanSession({
-        id: response.data.scanSessionId,
-        originalText: [additionalText.trim(), response.data.ocrExtractedText || ''].filter(Boolean).join('\n'),
-        round: 1,
-      });
       files.forEach((item) => {
         if (item.preview) URL.revokeObjectURL(item.preview);
       });
@@ -99,51 +91,11 @@ export default function HomePage() {
     }
   };
 
-  const handleContinue = async ({ sentReply, senderReply, image }) => {
-    if (!scanSession?.id || !scanSession.originalText) {
-      setError('Phiên quét đã hết dữ liệu gốc. Vui lòng quét lại tin nhắn ban đầu.');
-      return;
-    }
-    if (image && (!['image/jpeg', 'image/png'].includes(image.type) || image.size > 10 * 1024 * 1024)) {
-      setError('Ảnh phản hồi phải là JPEG/PNG và không quá 10 MB.');
-      return;
-    }
+  const startNewScan = () => {
+    setResult(null);
     setError('');
-    setAnalyzing(true);
-    try {
-      const formData = new FormData();
-      const fingerprint = JSON.stringify([scanSession.id, scanSession.round, sentReply, senderReply,
-        image && [image.name, image.size, image.lastModified]]);
-      if (continueRequestRef.current?.fingerprint !== fingerprint) {
-        continueRequestRef.current = { fingerprint, id: crypto.randomUUID() };
-      }
-      formData.append('scanSessionId', scanSession.id);
-      formData.append('originalText', scanSession.originalText);
-      formData.append('sentReply', sentReply);
-      formData.append('senderReply', senderReply);
-      formData.append('round', String(Math.min(scanSession.round + 1, 3)));
-      formData.append('platform', 'sms');
-      formData.append('clientRequestId', continueRequestRef.current.id);
-      if (image) formData.append('images', image);
-      const response = await API.post('/api/v2/check/continue', formData);
-      setResult(response.data);
-      setScanSession((current) => ({
-        ...current,
-        originalText: [
-          current.originalText,
-          sentReply && `[Người dùng đã hỏi] ${sentReply}`,
-          senderReply && `[Phản hồi của người gửi] ${senderReply}`,
-          response.data.ocrExtractedText && `[Phản hồi OCR] ${response.data.ocrExtractedText}`,
-        ].filter(Boolean).join('\n'),
-        round: Math.min(current.round + 1, 3),
-      }));
-      continueRequestRef.current = null;
-      fetchStats();
-    } catch (err) {
-      setError(err.response?.data?.error || 'Không phân tích lại được. Nội dung cũ vẫn còn trong phiên này.');
-    } finally {
-      setAnalyzing(false);
-    }
+    scanRequestIdRef.current = null;
+    document.getElementById('scam-text-input')?.focus();
   };
 
   return (
@@ -334,8 +286,7 @@ export default function HomePage() {
               /* Real-time Forensic Result */
               <div className="space-y-3">
                 {['insufficient_context', 'invalid_input'].includes(result.assessment?.status)
-                  ? <ContextFollowUp result={result} busy={analyzing} onContinue={handleContinue}
-                      onDiscard={() => { setResult(null); setScanSession(null); continueRequestRef.current = null; }} />
+                  ? <ContextFollowUp result={result} busy={analyzing} onNewScan={startNewScan} />
                   : <ResultCard result={result} />}
                 {result.templateSaveStatus && result.templateSaveStatus !== 'not_applicable' && (
                   <p role="status" className="rounded-lg border border-white/10 bg-surface-container p-3 text-sm text-on-surface-variant">
@@ -344,7 +295,7 @@ export default function HomePage() {
                       : result.templateSaveStatus === 'incomplete_analysis'
                         ? 'Đã trả kết quả quét, nhưng chưa lưu mẫu vì AI thiếu một trong ba phần phân tích.'
                         : result.templateSaveStatus === 'deferred_insufficient_context'
-                          ? 'Đang chờ thêm ngữ cảnh; chưa lưu mẫu vào kho.'
+                          ? 'Lượt thiếu ngữ cảnh không được lưu. Khi có phản hồi mới, hãy bắt đầu lượt quét mới.'
                           : result.templateSaveStatus === 'deferred_review'
                             ? 'Có dấu hiệu cần cảnh giác nhưng AI chưa nhất quán; chưa lưu mẫu vào kho.'
                         : 'Đã trả kết quả quét, nhưng chưa lưu được mẫu. Vui lòng thử lại sau.'}
